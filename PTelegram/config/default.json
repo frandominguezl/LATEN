@@ -1,0 +1,27 @@
+{
+    "name": "PTelegram",
+    "singlebehaviour": true,
+    "isdebug":false,
+    "version": "1.0",
+    "silent": true,
+    "log": true,
+    "system": true,
+    "showbehaviour": false,
+    "boot": "jade",
+    "jadeconnection": {
+        "host": "localhost",
+        "port": 1099
+    },
+    "appearance": {
+        "isfx": false,
+        "text": [0, 1, 0],
+        "background": [0, 0, 0]
+    },
+    "dbconnection": {
+        "host": "localhost",
+        "port": 3306,
+        "database": "LATEN",
+        "user": "fran",
+        "password": "LATEN2021@"
+    }
+}

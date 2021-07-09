@@ -1,0 +1,21 @@
+{
+    "name": "LATEN",
+    "version": "1.0",
+    "silent": false,
+    "log": true,
+    "system": true,
+    "showbehaviour": false,
+    "singlebehaviour": true,
+    "boot": "jade",
+    "jadeconnection": {
+        "host": "localhost",
+        "port": 1099
+    },
+    "dbconnection": {
+        "host": "localhost",
+        "port": 3306,
+        "database": "LATEN",
+        "user": "fran",
+        "password": "LATEN2021@"
+    }
+}
