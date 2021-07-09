@@ -1,10 +1,7 @@
-# Trabajo de Fin de Grado: *Título*
+# Trabajo de Fin de Grado: *LATEN - Larva Agent Telegram Notifier*
 
-**Este sería el README de tu proyecto. Consulta las [instrucciones de
-instalación](INSTALL.md)
-
-### Autor(a): Nombre
-### Tutor(a)(es): Nombre(s)
+### Autor(a): Francisco Domínguez Lorente
+### Tutor(a)(es): Luis Castillo Vidal
 ___
 
 La documentación de este proyecto está realizada con `LaTeX`, por lo
@@ -30,7 +27,3 @@ O directamente
     make
     
 (que habrá que editar si el nombre del archivo del proyecto cambia)
-
-# INSTRUCCIONES
-
-Lee [INSTALL.md](INSTALL.md) para las instrucciones de uso.
