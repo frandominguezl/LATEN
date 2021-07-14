@@ -21,6 +21,7 @@ import jade.core.Profile;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import java.io.File;
+import static java.lang.Math.abs;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -93,6 +94,9 @@ public abstract class BaseTelegram extends AdminAgent {
                 + "NONE: You won't receive any notifications at all\n\n"
                 + "By default this is equal to ALL. The usage of this command is, for example, /notifications ALL");
         myPublicCommands.put("/notificationstatus", "Check your current level of notifications");
+        myPublicCommands.put("/myprogress", "Outputs your current progress for the whole subject");
+        myPublicCommands.put("/problemprogress", "Outputs your current progress for a specific problem of an assignment");
+        myPublicCommands.put("/assignmentprogress", "Outputs your current progress for all the problems of the specified assignment");
         _exitRequested = false;
         isDebug = this._config.getBoolean("isdebug", true);
         _enigma= new AdminCryptor("cardIDcryptor202");
@@ -332,8 +336,8 @@ public abstract class BaseTelegram extends AdminAgent {
         TelegramChat tc = this.telegramQueue.getChatData(cid);
         
         try {
-            _dataBase.updateDB("UPDATE Users SET notificationSettings=" + type + " WHERE chatID=" + cid);
-            this.sendTelegram(cid, "Notifications set to " + type);
+            _dataBase.updateDB("UPDATE Users SET notificationSettings='" + type + "' WHERE userID='" + tc.getUserID() + "'");
+            this.sendTelegram(cid, Emojis.INFO + " Notifications set to " + type);
         } catch (Exception ex) {
             Exception("", ex);
             this.sendTelegram(cid, Emojis.WARNING + "I could not perform this task due to an internal error. Please try later");
@@ -352,6 +356,54 @@ public abstract class BaseTelegram extends AdminAgent {
             Exception("", ex);
             this.sendTelegram(cid, Emojis.WARNING + " I could not perform this task due to an internal error. Please try later");
         }
+    }
+    
+    protected void doMyProgress(long cid) {
+        
+    }
+    
+    protected void doProblemProgress(long cid, int problemID) {
+        try {
+            TelegramChat tc = this.telegramQueue.getChatData(cid);
+            
+            // Gather the current milestone the user has of the problem
+            JsonObject currentMilestones = 
+                        _dataBase.queryJsonDB("SELECT milestones FROM AnalyticsReportAssignment WHERE whoID=" + tc.getUserID()
+                                + " AND problemID=" + problemID).getRowByIndex(0);          
+            
+            // Count the current milestones
+            int currentMilestonesCount = countMilestones(currentMilestones.get("milestones").asString());
+            
+            // Gather the problem's target milestones
+            JsonObject targetMilestones = 
+                        _dataBase.queryJsonDB("SELECT title, milestones FROM LATEN.Problems WHERE problemID=" + problemID).getRowByIndex(0);
+            
+            // Count the target milestones
+            int targetMilestonesCount = countMilestones(targetMilestones.get("milestones").asString());
+            
+            String greenSquares = Emojis.GREENSQUARE.repeat(targetMilestonesCount);
+            String blackSquares = Emojis.BLACKSQUARE.repeat(currentMilestonesCount);
+            
+            String message = "";
+            
+            if (currentMilestonesCount == targetMilestonesCount) {
+                message = "Progress for problem " + targetMilestones.get("title") + ":\n\n" + greenSquares + "\n\n"
+                        + "This problem is completed!";
+            } else {
+                blackSquares = Emojis.BLACKSQUARE.repeat(abs(targetMilestonesCount-currentMilestonesCount));
+                message = "Progress for problem " + targetMilestones.get("title") + ":\n\n" + greenSquares + blackSquares + "\n\n"
+                        + "You still have " + abs(targetMilestonesCount-currentMilestonesCount) + " more achievements to complete";
+            }
+            
+            this.sendTelegram(cid, message);
+        } catch (Exception ex) {
+            Exception("", ex);
+            this.sendTelegram(cid, Emojis.WARNING + " I could not perform this task due to an internal error. Please try later");
+        }
+    }
+    
+    protected void doAssignmentProgress(long cid, int assignmentID) {
+        
     }
     
     //

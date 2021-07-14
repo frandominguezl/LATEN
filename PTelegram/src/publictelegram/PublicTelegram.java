@@ -142,17 +142,18 @@ public class PublicTelegram extends BaseTelegram {
                     case "/notifications":
                         if (parameters.length != 2) {
                             this.sendTelegram(cid, Emojis.CANCEL + " Invalid syntax. The correct syntax is /notifications option.\n"
-                                    + "Allowed options are: ALL, MIN or NONE");
+                                    + "Allowed options are: ALL, MIN, ACL or NONE");
                             
                             break;
                         }
                         
                         if (!line.replace(parameters[0], "").trim().equals("ALL") &&
+                            !line.replace(parameters[0], "").trim().equals("ACL") &&
                             !line.replace(parameters[0], "").trim().equals("MIN") &&
                             !line.replace(parameters[0], "").trim().equals("NONE")) {
                             
                             this.sendTelegram(cid, Emojis.CANCEL + " " + line.replace(parameters[0], "").trim()
-                                + " is not a valid option for this command. Allowed options are: ALL, MIN or NONE");
+                                + " is not a valid option for this command. Allowed options are: ALL, MIN, ACL or NONE");
                             
                             break;
                         }
@@ -162,6 +163,18 @@ public class PublicTelegram extends BaseTelegram {
                         
                     case "/notificationstatus":
                         doCheckNotificationsStatus(cid);
+                        break;
+                        
+                    case "/myprogress":
+                        doMyProgress(cid);
+                        break;
+                    
+                    case "/problemprogress":
+                        doProblemProgress(cid, Integer.parseInt(line.replace(parameters[0], "").trim()));
+                        break;
+                        
+                    case "/assignmentprogress":
+                        doAssignmentProgress(cid, Integer.parseInt(line.replace(parameters[0], "").trim()));
                         break;
                     default:
                         this.sendTelegram(cid, hello);

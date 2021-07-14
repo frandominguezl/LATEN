@@ -47,26 +47,24 @@ public class LATEN extends AdminAgent {
     @Override
     public void plainExecute() {
         try {
-            File ficheroSesiones = new File(testLog);
+            File ficheroSesiones = new File(sessionFile);
             Scanner myReader = new Scanner(ficheroSesiones);
             
             // Identify which group does this communication belong to
             this.group = this.identifyGroup(myReader.nextLine());
             
             // Verify which members do we have to send the message to
+            // First, obtain the groupID
+            JsonObject groupID = _dataBase.queryJsonDB("SELECT groupID FROM LATEN.Groups WHERE alias='" + this.group + "'").getRowByIndex(0);
             
-            /*
-            1. SELECT groupID from Groups WHERE alias=this.group
-            2. SELECT userID from GroupMembers WHERE groupID=^
-            3. SELECT notificationSettings from Users WHERE userID=^
-            */
-            //JsonObject groupID = _dataBase.queryJsonDB("SELECT groupID from Groups WHERE alias=" + this.group).getRowByIndex(0);
-            JsonArray usersID = _dataBase.queryJsonDB("SELECT userID FROM GroupMembers WHERE groupID=12").getAllRows();
+            // Members belonging to that group
+            JsonArray usersID = _dataBase.queryJsonDB("SELECT userID FROM GroupMembers WHERE groupID=" + groupID.get("groupID")).getAllRows();
             
             for(int i = 0; i < usersID.size(); i++) {
                 this.groupMembers.add(usersID.get(i).asObject());
             }
             
+            // Adds the notifications settings for each user
             for(JsonObject groupMember : this.groupMembers) {
                 JsonObject usersNotifications = 
                         _dataBase.queryJsonDB("SELECT notificationSettings FROM Users WHERE userID=" + groupMember.get("userID")).getRowByIndex(0);
@@ -80,7 +78,6 @@ public class LATEN extends AdminAgent {
             this.setConvIDs();
             
             // Consider different type of notifications (all, just the minimum, only ACL Messages, none)
-            // Should we consider NONE?
             
             while(myReader.hasNextLine()) {
                 String linea = myReader.nextLine();
@@ -89,7 +86,7 @@ public class LATEN extends AdminAgent {
                 String info;
                 
                 if (linea.contains("acl_receive_REGULAR") && linea.contains("\"command\":\"login\"")) {
-                    // This is a notification marked as ALL/MIN/ACL
+                    // This is a notification marked as ALL
                     String newConvIDs = this.buildNotificationString("ALL");                
                     
                     sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.ENVELOPE + " Sending login request...", newConvIDs);
@@ -97,7 +94,7 @@ public class LATEN extends AdminAgent {
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("Login request from")) {
                     info = jsonLine.get("record").asObject().get("value").asObject().get("content").asObject().get("what").asString();
                     
-                    // This is a notification marked as ALL/MIN/ACL
+                    // This is a notification marked as ALL
                     String newConvIDs = this.buildNotificationString("ALL");
                     
                     sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", info, newConvIDs);
@@ -121,7 +118,7 @@ public class LATEN extends AdminAgent {
                         message = Emojis.CHEQFLAG + " Goal " + milestoneID + " achieved!";
                         
                         // Should be notified always
-                        newConvIDs = this.buildNotificationString("ALL MIN ACL");
+                        newConvIDs = this.buildNotificationString("ALL MIN");
                     } else {
                         achievedNormalMilestones.add(milestoneID);
                                               
@@ -134,53 +131,102 @@ public class LATEN extends AdminAgent {
                     sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", message, newConvIDs);
                     
                 } else if (linea.contains("BAD CardID")) {
-                    // This is an error, should always notify                    
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Bad CardID: No CardID found", this.conversationIDs);
+                    // This is an error, should always notify 
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Bad CardID: No CardID found", newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && !linea.contains("error") && linea.contains("Unable to load world")) {
                     info = jsonLine.get("record").asObject().get("value").asObject().get("content").asObject().get("what").asString();  
 
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", info, this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", info, newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("Unable to load world") && linea.contains("error")) {
                     info = jsonLine.get("record").asObject().get("value").asObject().get("content").asObject().get("details").asString();
                     
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + info, this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + info, newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("Bad ConversationId")) {
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Bad ConversationID", this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Bad ConversationID", newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("Crash onto the ground")) {
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Crash onto the ground", this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Crash onto the ground", newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("Crash onto world's boundaries")) {
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Crash onto world's boundaries", this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Crash onto world's boundaries", newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("Energy exhausted")) {
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Energy exhausted", this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Energy exhausted", newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("Agent is dead")) {
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Agent is dead", this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Agent is dead", newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("Flying too high")) {
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Flying too high", this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Flying too high", newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("Action  not within its capabilities")) {
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Action not within its capabilities", this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " Action not within its capabilities", newConvIDs);
                     
                 } else if (linea.contains("acl_send_REGULAR") && linea.contains("The key is absent or wrong")) {
                     // This is an error, should always notify 
-                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " The key is absent or wrong", this.conversationIDs);
+                    String newConvIDs = this.buildNotificationString("ALL MIN");
                     
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.WARNING + " The key is absent or wrong", newConvIDs);
+                    
+                } else if (linea.contains("acl_receive_REGULAR")) {
+                    JsonObject ACLObject = jsonLine.get("record").asObject().get("value").asObject();
+                    
+                    String agentName = ACLObject.get("sender").asString();
+                    
+                    JsonObject usersNotifications = 
+                        _dataBase.queryJsonDB("SELECT userID, notificationSettings FROM Users WHERE agentID=" + agentName).getRowByIndex(0);
+                    
+                    // If the owner of the agent doesn't have the ACL settings, just continue
+                    if (!usersNotifications.get("notificationSettings").asString().equals("ACL"))
+                        continue;
+                    
+                    String performative = ACLObject.get("performative").asString();
+                    String action, message = "";
+                    
+                    if (linea.contains("\"command\":\"execute\"")) {
+                        action = ACLObject.get("content").asObject().get("action").asString();
+                        message = Emojis.WARNING + " Received ACL message with performative "
+                            + performative + " and action " + action;
+                    } else if (linea.contains("\"command\":\"read\"")) {
+                        message = Emojis.WARNING + " Reading sensors...";
+                    }                    
+                    
+                    // This will notify the owner of the agent if he has the ACL notification mode
+                    String newConvIDs = Integer.toString(usersNotifications.get("userID").asInt());
+                    
+                    sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", message, newConvIDs);
                 }
                 
                 // Wait some time before sending the next one, we don't want to collapse the bot
