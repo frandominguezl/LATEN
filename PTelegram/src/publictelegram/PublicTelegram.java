@@ -170,10 +170,22 @@ public class PublicTelegram extends BaseTelegram {
                         break;
                     
                     case "/problemprogress":
+                        if (parameters.length != 2) {
+                            this.sendTelegram(cid, Emojis.CANCEL + " Invalid syntax. The correct syntax is /problemprogress problemID.");
+                            
+                            break;
+                        }
+                        
                         doProblemProgress(cid, Integer.parseInt(line.replace(parameters[0], "").trim()));
                         break;
                         
                     case "/assignmentprogress":
+                        if (parameters.length != 2) {
+                            this.sendTelegram(cid, Emojis.CANCEL + " Invalid syntax. The correct syntax is /assignmentprogress assignmentID.");
+                            
+                            break;
+                        }
+                        
                         doAssignmentProgress(cid, Integer.parseInt(line.replace(parameters[0], "").trim()));
                         break;
                     default:

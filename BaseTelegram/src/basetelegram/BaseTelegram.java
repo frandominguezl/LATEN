@@ -14,6 +14,7 @@ import AdminKeys.DBACoin;
 import ConsoleAnsi.ConsoleAnsi;
 import FileUtils.FileUtils;
 import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import jade.core.AID;
@@ -403,7 +404,67 @@ public abstract class BaseTelegram extends AdminAgent {
     }
     
     protected void doAssignmentProgress(long cid, int assignmentID) {
-        
+        try {
+            TelegramChat tc = this.telegramQueue.getChatData(cid);
+            
+            int whoID = -1;
+            
+            // We need to know if the assignment is individual or not
+            JsonObject assignment = _dataBase.queryJsonDB("SELECT title, isIndividual FROM Assignments WHERE assignmentID=" + assignmentID).getRowByIndex(0);
+            
+            if (!assignment.get("isIndividual").asBoolean()) {
+                whoID = tc.getGroupID();
+            } else {
+                whoID = tc.getUserID();
+            }
+            
+            // Gather all the problems of the assignment
+            JsonArray assignmentProblems = 
+                        _dataBase.queryJsonDB("SELECT problemID FROM AnalyticsReportAssignment WHERE whoID=" + whoID
+                                + " AND assignmentID=" + assignmentID).getAllRows();
+            
+            String message = "Report for " + assignment.get("title").asString() + "\n\n";
+            
+            for (JsonValue problem : assignmentProblems) {
+                // Gather the current milestone the user has of the problem
+                JsonObject currentMilestones = 
+                        _dataBase.queryJsonDB("SELECT milestones FROM AnalyticsReportAssignment WHERE whoID=" + whoID
+                                + " AND problemID=" + problem.asObject().get("problemID")).getRowByIndex(0);
+                
+                // Count the current milestones
+                int currentMilestonesCount = countMilestones(currentMilestones.get("milestones").asString());
+                
+                // Gather the problem's target milestones
+                JsonObject targetMilestones = 
+                        _dataBase.queryJsonDB("SELECT title, milestones FROM LATEN.Problems WHERE problemID=" + problem.asObject().get("problemID")).getRowByIndex(0);
+                
+                // Count the target milestones
+                int targetMilestonesCount = countMilestones(targetMilestones.get("milestones").asString());
+                
+                String greenSquares = Emojis.GREENSQUARE.repeat(targetMilestonesCount);
+                String blackSquares = Emojis.BLACKSQUARE.repeat(currentMilestonesCount);
+                
+                if (currentMilestonesCount == targetMilestonesCount) {
+                    message = message + "Problem: " + targetMilestones.get("title").asString().replace("\"", "") + " (" + currentMilestonesCount
+                            + "/" + targetMilestonesCount + ")\n" + greenSquares;
+                } else if (currentMilestonesCount == 0) {
+                    blackSquares = Emojis.BLACKSQUARE.repeat(abs(targetMilestonesCount-currentMilestonesCount));
+                    message = message + "Problem: " + targetMilestones.get("title").asString().replace("\"", "") + " (" + currentMilestonesCount
+                            + "/" + targetMilestonesCount + ")\n" + blackSquares;
+                } else {
+                    blackSquares = Emojis.BLACKSQUARE.repeat(abs(targetMilestonesCount-currentMilestonesCount));
+                    message = message + "Problem: " + targetMilestones.get("title").asString().replace("\"", "") + " (" + currentMilestonesCount
+                            + "/" + targetMilestonesCount + ")\n" + greenSquares + blackSquares;
+                }
+                
+                message += "\n\n";
+            }
+            
+            this.sendTelegram(cid, message);
+        } catch (Exception ex) {
+            Exception("", ex);
+            this.sendTelegram(cid, Emojis.WARNING + " I could not perform this task due to an internal error. Please try later");
+        }
     }
     
     //
