@@ -23,7 +23,11 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import java.io.File;
 import static java.lang.Math.abs;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -461,6 +465,29 @@ public abstract class BaseTelegram extends AdminAgent {
             }
             
             this.sendTelegram(cid, message);
+        } catch (Exception ex) {
+            Exception("", ex);
+            this.sendTelegram(cid, Emojis.WARNING + " I could not perform this task due to an internal error. Please try later");
+        }
+    }
+    
+    protected void doDueDate(long cid, int assignmentID) {
+        TelegramChat tc = this.telegramQueue.getChatData(cid);
+        
+        try {
+            JsonObject dueDate = _dataBase.queryJsonDB("SELECT title, dueDate FROM Assignments WHERE assignmentID=" + assignmentID).getRowByIndex(0);
+            
+            Calendar calendar = new GregorianCalendar();
+            
+            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dueDate.get("dueDate").asString());
+            
+            calendar.setTime(date);
+            
+            // January is the month 0, so we have to do this...
+            calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH)+1);
+            
+            this.sendTelegram(cid, Emojis.INFO + " The deadline for " + dueDate.get("title") + " is " + calendar.get(Calendar.DAY_OF_MONTH) + "/"
+                    + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.YEAR));
         } catch (Exception ex) {
             Exception("", ex);
             this.sendTelegram(cid, Emojis.WARNING + " I could not perform this task due to an internal error. Please try later");

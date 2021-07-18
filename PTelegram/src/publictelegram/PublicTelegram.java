@@ -188,9 +188,20 @@ public class PublicTelegram extends BaseTelegram {
                         
                         doAssignmentProgress(cid, Integer.parseInt(line.replace(parameters[0], "").trim()));
                         break;
+                        
+                    case "/duedate":
+                        if (parameters.length != 2) {
+                            this.sendTelegram(cid, Emojis.CANCEL + " Invalid syntax. The correct syntax is /duedate assignmentID.");
+                            
+                            break;
+                        }
+                        
+                        doDueDate(cid, Integer.parseInt(line.replace(parameters[0], "").trim()));
+                        break;
+                        
                     default:
                         this.sendTelegram(cid, hello);
-
+                    
                 }
             } else if (u.getMessage().hasDocument()) {
                 if (storeCardID(cid, u)) {
