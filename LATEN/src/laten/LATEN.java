@@ -58,7 +58,7 @@ public class LATEN extends AdminAgent {
             JsonObject groupID = _dataBase.queryJsonDB("SELECT groupID FROM LATEN.Groups WHERE alias='" + this.group + "'").getRowByIndex(0);
             
             // Members belonging to that group
-            JsonArray usersID = _dataBase.queryJsonDB("SELECT userID FROM GroupMembers WHERE groupID=" + groupID.get("groupID")).getAllRows();
+            JsonArray usersID = _dataBase.queryJsonDB("SELECT userID FROM GroupMembers WHERE cardID IS NOT NULL AND groupID=" + groupID.get("groupID")).getAllRows();
             
             for(int i = 0; i < usersID.size(); i++) {
                 this.groupMembers.add(usersID.get(i).asObject());

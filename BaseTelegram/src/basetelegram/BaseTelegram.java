@@ -24,6 +24,7 @@ import jade.lang.acl.MessageTemplate;
 import java.io.File;
 import static java.lang.Math.abs;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -57,7 +58,7 @@ public abstract class BaseTelegram extends AdminAgent {
     protected HashMap<Integer, Long> myGuests;
     protected AdminCardID thecard;
     protected boolean isPrivate, isDebug, allowRedirections = false;
-    protected final long[] myTeacherCIDs = new long[]{324545938};
+    protected final long[] myTeacherCIDs = new long[]{5395366, 324545938};
     protected final long LCastilloCID = myTeacherCIDs[0];
 
     @Override
@@ -291,6 +292,7 @@ public abstract class BaseTelegram extends AdminAgent {
                     //this.sendTelegram(cid, newline() + mono(aclanswer.getContent()));                
                 } else {
                     this.sendTelegram(cid, Emojis.CANCEL + mono(" " + name));
+                    this.sendTelegram(LCastilloCID, Emojis.INFO + " A student used /query and the agent didn't respond. Please, check the status of the agents.");
                 }
             }
         } catch (Exception ex) {
@@ -364,7 +366,28 @@ public abstract class BaseTelegram extends AdminAgent {
     }
     
     protected void doMyProgress(long cid) {
+        SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date(System.currentTimeMillis());
         
+        String currentDate = formatter.format(date);
+        
+        try {
+            JsonArray currentProblems = 
+                        _dataBase.queryJsonDB("SELECT assignmentID FROM Assignments WHERE releaseDate<='" + currentDate + "' AND"
+                        + " dueDate>='" + currentDate + "'").getAllRows();
+            
+            if (currentProblems.size() == 0) {
+                this.sendTelegram(cid, Emojis.CANCEL + " There are no active assignments. Check back in another time!");
+            }
+            
+            for(JsonValue problem : currentProblems) {
+                this.doAssignmentProgress(cid, problem.asObject().asObject().get("assignmentID").asInt());
+            }
+            
+        } catch (Exception ex) {
+            Exception("", ex);
+            this.sendTelegram(cid, Emojis.WARNING + " I could not perform this task due to an internal error. Please try later");
+        }
     }
     
     protected void doProblemProgress(long cid, int problemID) {
@@ -585,9 +608,11 @@ public abstract class BaseTelegram extends AdminAgent {
     }
 
     protected void deleteCardID(long cid) {
+        // TODO: null this value in the database
         File todel = new File(this.getFilenameCardID(cid));
         if (todel.exists()) {
             todel.delete();
+            _dataBase.updateDB("UPDATE Users SET chatID=-1 WHERE chatID=" + cid);
         }
     }
 
