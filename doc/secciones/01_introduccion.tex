@@ -1,3 +1,77 @@
 \chapter{Introducción}
+\label{chap:introduccion}
 
-Este proyecto es software libre, y está liberado con la licencia \cite{gplv3}.
+Durante las últimas décadas se ha popularizado mucho el uso de agentes independientes \textit{(aunque este término es ciertamente redundante} para uso diario, en nuesta vida cotidiana. Hoy en día tenemos varios ejemplos muy claros de este término, y en su mayoría, relacionados estrechamente con la inteligencia artificial.\\
+
+El robot aspirador que tenemos en nuestra casa programado, para que a cierta hora del día recorra las habitaciones que nosotros le indiquemos, es ciertamente un agente que usa la información de su entorno para realizar sus tareas.\\
+
+También lo son los prototipos de vehículos autónomos, generalmente coches, que junto con una gran cantidad de sensores también se aprovechan de la información que les brinda el entorno para desplazarse de un punto a otro sin tener ningún accidente.\\
+
+Estos dos ejemplos anteriores se refieren a sistemas de un solo agente, aunque estos tengan que interactuar con otros factores externos a ellos, pero también existen sistemas de varios agentes, en los que además de valerse de la información que les proporciona el medio en el que se mueven, también deberán de comunicarse entre ellos. De no ser así, una flota de drones autónomos daría lugar a numerosos accidentes, ya que cada agente no sabe qué va a hacer el resto de agentes de la red.
+
+\section{Definición de agente}
+
+Como es habitual en la mayoría de definiciones de la informática, a lo largo de los años se han propuesto diversas definiciones para el término de agente. Michael Wooldridge en su libro \textit{An Introduction to MultiAgent Systems}\cite{wooldridge-2009} introduce el término \textit{agente} como \textit{''un sistema capaz de realizar acciones de manera autónoma en algún entorno, para lograr las tareas que le han sido delegadas''}.\\
+
+El profesor Yoav Shoham de la Universidad de Stanford, publicó en 1991 el artículo \textit{Agent-oriented programming}\cite{Shoham}, en el cual hace una reflexión a cerca del uso que se le está dando al término. Esencialmente, lo que quiere transmitir es que el término se ha hecho tan popular en las últimas décadas, que ha dejado de tener sentido sin hacer alguna referencia particular a alguna noción de agente. Como por ejemplo, el ser autónomo, algo que el profesor indica que no es preciso, pero que se usa para indicar que las actividades que realizan los agentes no requieren intervención humana constante.\\
+
+A pesar de que hay muchas más definiciones, a partir de ahora en este documento se entenderá como agente a \textit{''un sistema computacional situado en un entorno y capaz de actuar de forma independiente o autónoma para conseguir sus propios objetivos, sin que una persona tenga que decirle cómo lograrlos, en representación de otra instancia (ya sea otro agente, una persona o él mismo)''}. Esta definición es la ha sido impartida en la asignatura previamente mencionada y la que por tanto hemos adoptado durante el desarrollo de la misma.
+
+\section{Sistemas Multiagente}
+
+Debido a nuestra propia naturaleza, los seres humanos estamos condenados a vivir en sociedad para la realización de objetivos propios u objetivos comunes, que nos ayuden a progresar individual o colectivamente dentro de nuestros intereses. De igual forma, si establecemos un sistema en el que conviven varios agentes, podemos delegar diferentes tareas en cada uno de ellos para que entre todos puedan resolver un problema.\\
+
+Volviendo al ejemplo de la flota de drones autónomos mencionado anteriormente, podríamos imaginarnos que esta flota de drones tiene como objetivo localizar varios paquetes en un bosque de grandes dimensiones. En principio, no nos importa cuántos drones tengamos, únicamente queremos que enter todos localicen en un área determinada unos objetivos.\\
+
+Vamos a pensar qué pasaría si en un momento determinado encuentra un paquete en cierto punto del bosque. Es necesario que se comunique de inmediato con el resto de agentes (drones) de la red por varios motivos, pero quizás uno de los más importantes sea que ese paquete sea el último que tienen que encontrar entre todos. Si no se llegase a comunicar, la red seguiría funcionando hasta que los drones se quedasen sin batería, casuística evidentemente que no queremos que se de. De esta forma se logra la \textbf{comunicación} entre agentes de un mismo sistema.\\
+
+Para llegar a completar los objetivos, deberán adicionalmente \textbf{cooperar} entre ellos, \textbf{coordinar} sus acciones y \textbf{negociar} el conjunto de acciones a realizar. Con estos cuatro términos, podemos asegurar que tenemos un sistema multiagente.
+
+\section{Comunicación entre agentes. Mensajes ACL.}
+
+La comunicación es la base fundamental para poder convivir en sociedad. Nosotros los seres humanos tenemos diferentes métodos para comunicarnos entre nosotros, por ejemplo, mediante el habla. Entre seres humanos de una misma región, obviando gran cantidad de detalles y particularidades, todos se comunican siguiendo un lenguaje y unas normas concretas que otro ser humano de otra región puede no entender, puesto que pertenecen a un conjunto de personas, a una sociedad concreta. Existen también formas de comunicarse que son universales y que por tanto entendemos todos los miembros de la sociedad en su conjunto independientemente de la región.\\
+
+Con respecto a los agentes, puesto que también hemos destacado que van a pertenecer a una sociedad (de agentes), es necesario establecer un lenguaje que puedan entender todos, al menos, de un mismo sistema. En sistemas de pequeña o media escala, basta con establecer un estándar de comunicación y adaptar todos los agentes de dicho sistema al mismo, para que puedan entender los mensajes provenientes de otros agentes, y de igual forma facilitar que otros agentes entiendan de manera sencilla los mensajes que envíen. En sistemas más grandes, es posible que exista un agente mediador que se encargará de homogeneizar todas las transmisiones entre agentes para que todos puedan entenderse en la red.\\
+
+La \textbf{F}oundation for \textbf{I}ntelligent \textbf{P}hysical \textbf{A}gents, \textit{FIPA de ahora en adelante}, es una organización internacional que se dedica a la promoción en la industria de agentes inteligentes mediante el desarrollo de especificaciones y estándares para soportar la interoperabilidad entre agentes y entre aplicaciones basadas en agentes \cite{FIPA}.\\
+
+En 2002, la FIPA publicó el documento \textit{FIPA ACL Message Structure Specification}\cite{FIPA} calificándolo de estándar, mediante el cual buscaba establecer una serie de parámetros y directivas para asegurar la comunicación entre agentes. El acrónimo \textit{ACL} se refiere en inglés a \textit{Agent Communication Language}\cite{JADEMessage}, lo cual nos clarifica aún más que se trata de un conjunto de parámetros de mensaje para realizar las comunicaciones de manera efectiva.\\
+
+\subsection{Estructura de un mensaje ACL}
+En el estándar anteriormente mencionado, se establecen una serie de parámetros que un mensaje puede o no incluir en un sistema para hacer efectiva la comunicación entre dos agentes. Más concretamente, el único parámetro obligatorio para la comunicación es la \textbf{performativa} \textit{(performative, en inglés)}, aunque generalmente es razonable incluir otros parámetros como por ejemplo el remitente, el destinatario o el contenido del propio mensaje. En la tabla \ref{tab:aclparams} se pueden observar los distintos parámetros junto a la categoría que pertenecen acorde al estándar ACL de FIPA.\\
+
+\begin{table}[]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parámetro} & \textbf{Categoría}           \\ \hline
+performative       & Type of communicative acts   \\ \hline
+sender             & Participant in communication \\ \hline
+receiver           & Participant in communication \\ \hline
+reply-to           & Participant in communication \\ \hline
+content            & Content of message           \\ \hline
+language           & Description of Content       \\ \hline
+encoding           & Description of Content       \\ \hline
+ontology           & Description of Content       \\ \hline
+protocol           & Control of conversation      \\ \hline
+conversation-id    & Control of conversation      \\ \hline
+reply-with         & Control of conversation      \\ \hline
+in-reply-to        & Control of conversation      \\ \hline
+reply-by           & Control of conversation      \\ \hline
+\end{tabular}
+\caption{Parámetros de mensaje del estándar FIPA ACL \cite{unknown-author-2002}}
+\label{tab:aclparams}
+\end{table}
+
+Para una mejor comprensión, a continuación se detallan estos parámetros, ya que serán objeto de uso más adelante:\\
+
+\begin{itemize}
+	\item \textbf{Performative}\\
+	Es el único parámetro requerido en cualquier mensaje ACL y denota el tipo de acto comunicativo del propio mensaje. Desde la FIPA recomiendan usar en la medida de lo posible ciertos valores, también estandarizados bajo el documento \textit{FIPA Communicative Act Library Specification} \cite{unknown-author-2002B}, el cual fue estandarizado en la misma fecha que el documento previamente mencionado.
+	\item Information about the current progress of the assignments
+	\item Checking the status of the agents in the system
+\end{itemize}
+
+\section{JADE}
+
+\section{LARVA}
