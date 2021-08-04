@@ -74,4 +74,85 @@ Para una mejor comprensión, a continuación se detallan estos parámetros, ya q
 
 \section{JADE}
 
+Para facilitar el desarrollo basado en agentes, nos apoyamos en JADE, acrónimo de \textit{JAVA Agent DEvelopment framework}. JADE es un framework de código abierto que actúa como middleware y que simplifica la implementación de sistemas multiagente haciendo uso de las especificaciones y estándares de la FIPA junto con varias herramientas gráficas que ayudan al proceso de depuración y de despliegue de dichos sistemas.\\
+
+Este middleware implementa principalmente un entorno de ejecución donde los agentes pueden existir y el cual debe de estar activo en una máquina anfitrión antes de que uno o más agentes puedan ser ejecutados en ese anfitrión. Cada una de las instancias en ejecución del entorno de JADE se denota como \textbf{Contenedor}.\\
+
+Con respecto a JADE, es importante entender varios conceptos y más concretamente algunas clases que nos facilitan precisamente para el desarrollo de los agentes.\\
+
+\subsection{La clase \textit{Agent}}
+
+Para crear un agente de JADE, basta con extender la clase \textit{jade.core.Agent} e implementando el método \textit{setup()}, el cuál solo se debería usar para las inicializaciones que se deban de llevar a cabo en el momento de creación del agente:
+\begin{lstlisting}
+import jade.core.Agent;
+
+public class BookBuyerAgent extends Agent {
+ protected void setup() {
+ // Printout a welcome message
+ System.out.println('Hello! Buyer-agent '+getAID().getName()+' is ready.');
+ }
+}
+\end{lstlisting}
+
+El propio comportamiento del agente se llevará a cabo con las herramientas de la clase \textit{Behaviour} que se comentará en la siguiente sección.\\
+
+Dentro de un sistema multiagente, es necesario poder identificar de manera inequívoca a cada participante de la red. De esta forma, cada agente es identificado con un identificador de agente representado a través de una instancia de la clase \textit{jade.core.AID}. Cada objeto AID es un identificador global único de un determinado agente en una plataforma, que es de la forma \textit{<nombre\_del\_agente>@<nombre\_de\_la\_plataforma>} y junto con las direcciones incluidas en el objeto AID, se utilizará para la comunicación con otro agente que exista en otra plataforma diferente.\\
+
+Como última nota importante, aunque nuestro agente no haga más que imprimir un mensaje de bienvenida, éste sigue presente y ejecutándose en el entorno, por tanto tendremos que terminar su ejecución haciendo uso de los métodos \textit{doDelete()} y \textit{takeDown()}, que efectúan operaciones de limpieza en los agentes para proceder a su terminación.
+
+\subsection{La clase \textit{Behaviour}}
+
+La o las acciones a definir para que las realice un agente en concreto se deben specificar a través de \textit{behaviours}, los cuales son implementados como un objeto de la clase \textit{jade.core.behaviours.Behaviour}.\\
+
+Cada clase que extienda de \textit{Behaviour} deberá implementar los dos siguientes métodos:
+
+\begin{itemize}
+	\item \textit{action():} Es el método que define las operaciones que debe de realizar el agente durante su ejecución.
+	\item \textit{done():} Devuelve un booleano y controla cuándo se ha completado (o no) un comportamiento concreto y por tanto dar paso a la eliminación de dicho comportamiento del agente al que pertenece.
+\end{itemize}
+
+Los comportamientos se pueden añadir al agente en cualquier momento; ya sea cuando se crea el agente (mediante el método \textit{setup()}) o desde otros comportamientos. Se pueden añadir comportamientos a un agente usando el método \textit{addBehaviour()} de la clase \textit{Agent}.\\
+
+Un agente puede ejecutar varios \textit{behaviours} de manera concurrente, usando un solo hilo de Java por agente, lo cual es especialmente importante en entornos con recursos limitados. Es importante destacar que cuando un \textit{behaviour} es programado para ejecutarse, su método \textit{action()} será llamado y se ejecutará hasta que termine. Esto deja al programador la labor de definir cómo un agente cambia de un \textit{behaviour} a otro durante su ejecución, y es especialmente ventajoso ya que mejora notablemente el rendimiento, ya que el cambio entre \textit{behaviours} es mucho extremadamente más rápido que el cambio entre hilos de Java.
+
+\subsection{La clase \textit{ACLMessage}}
+
+Como se ha explicado en secciones anteriores, existe un estándar de comunicación entre agentes elaborado por la FIPA para así habilitar la interoperabilidad y mejorar la comunicación entre agentes. JADE también incluye una clase, \textit{jade.lang.acl.ACLMessage}, que implementa un mensaje JADE siguiendo el estándar elaborado por la FIPA.\\
+
+Para no ser repetitivos, a continuación se muestra un fragmento de código que ilustra cómo un agente comunica al agente cuyo nombre es \textit{Lucian} un cierto mensaje, en un lenguage y una ontología determinados en el propio mensaje ACL:
+
+\begin{lstlisting}
+ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+msg.addReceiver(new AID('Lucian', AID.ISLOCALNAME));
+msg.setLanguage('English');
+msg.setOntology('Weather-forecast-ontology');
+msg.setContent('Today it’s raining');
+send(msg);
+\end{lstlisting}
+
+Como nota aclaratoria, el método \textit{send()} pertenece a la clase \textit{Agent}.\\
+
+Evidentemente, también se pueden recibir mensajes, y la forma de hacerlos es esperar a que lleguen con una espera, ya sea bloqueante o no. Dentro de un \textit{behaviour}, la forma más usada y la más recomendada de recibir mensajes es la siguiente:\\
+
+\begin{lstlisting}
+public void action() {
+    ACLMessage msg = myAgent.receive();
+    if (msg != null) {
+        // Message received. Process it
+        ...
+    }
+    else {
+        block();
+    }
+}
+\end{lstlisting}
+
+En este pequeño fragmento de código, lo que nos interesa saber es que si no se recibe un mensaje, el \textit{behaviour} se marca como bloqueado y no vuelve a ser programado para su ejecución. Solo cuando el agente recibe un nuevo mensaje en su cola de mensajes, todos los \textit{behaviours} que están bloqueados se reactivan para que tengan posibilidad de procesar el mensaje recibido.
+
 \section{LARVA}
+
+LARVA es el acrónimo de \textit{Learning Analytics Recollecion and Visualization Agents} y es un conjunto de agentes que forman un ecosistema y que se ejecutan en un servidor concreto cuyo objetivo es medir el progreso y aprendizaje del alumno a través de las diferentes competencias de la asignatura Desarrollo Basado en Agentes, mostrándole su progreso y puntuación conseguidos de manera inmediata.\\
+
+LARVA hace uso de varios agentes para la verificación de las competencias. Generalmente, en las prácticas de la asignatura, el agente \textit{IntegratedAgent} será el que compruebe el progreso del alumno analizando las conversaciones entre los diferentes agentes con el servidor, para saber cuándo verdaderamente se ha completado un hito.\\
+
+Para poder utilizar estos agentes, es necesario establecer algún método de identificación de cada alumno. Esta identificación es un archivo que a partir de ahora denominaremos \textbf{cardID} y que contiene la acreditación cifrada de cada alumno, y que deberá estar contenida dentro de cada proyecto que se ejecute contra el servidor.
