@@ -73,6 +73,7 @@ Para una mejor comprensión, a continuación se detallan estos parámetros, ya q
 \end{itemize}
 
 \section{JADE}
+\label{sec:jade}
 
 Para facilitar el desarrollo basado en agentes, nos apoyamos en JADE, acrónimo de \textit{JAVA Agent DEvelopment framework}. JADE es un framework de código abierto que actúa como middleware y que simplifica la implementación de sistemas multiagente haciendo uso de las especificaciones y estándares de la FIPA junto con varias herramientas gráficas que ayudan al proceso de depuración y de despliegue de dichos sistemas.\\
 
@@ -119,7 +120,7 @@ Un agente puede ejecutar varios \textit{behaviours} de manera concurrente, usand
 
 Como se ha explicado en secciones anteriores, existe un estándar de comunicación entre agentes elaborado por la FIPA para así habilitar la interoperabilidad y mejorar la comunicación entre agentes. JADE también incluye una clase, \textit{jade.lang.acl.ACLMessage}, que implementa un mensaje JADE siguiendo el estándar elaborado por la FIPA.\\
 
-Para no ser repetitivos, a continuación se muestra un fragmento de código que ilustra cómo un agente comunica al agente cuyo nombre es \textit{Lucian} un cierto mensaje, en un lenguage y una ontología determinados en el propio mensaje ACL:
+Para no ser repetitivos, a continuación se muestra un fragmento de código que ilustra cómo un agente comunica al agente cuyo nombre es \textit{Lucian} un cierto mensaje, en un lenguaje y una ontología determinados en el propio mensaje ACL:
 
 \begin{lstlisting}
 ACLMessage msg = new ACLMessage(ACLMessage.INFORM);

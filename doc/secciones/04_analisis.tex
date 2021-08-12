@@ -1,2 +1,27 @@
 \chapter{Análisis del problema}
+
+Los siguientes puntos tratan de plasmar los desafíos que han supuesto para mí como estudiante a la hora de comenzar el estudio y desarrollo de este proyecto.
  
+\section{Red de agentes actual}
+
+En una primera fase del proyecto, por cuestiones meramente técnicas y de aprendizaje, se procederá a simular la red de agentes que existe para el desarrollo de las prácticas de la asignatura Desarrollo Basado en Agentes. Una vez verificado todo el comportamiento del agente desarrollado, se procederá a implementar ese agente en el mismo entorno que el reso de agentes y probar así su correcto funcionamiento.\\
+
+La arquitectura de agentes, tal y como se encontraba al momento de comienzo y con una breve explicación, es la siguiente:
+
+\begin{itemize}
+	\item \textbf{Identity Manager}: es el primer agente con el que se debe de establecer contacto en la plataforma. Encargado de verificar que somos quien decimos ser mediante el uso de nuestra \textbf{cardID}. Ningún otro agente aceptará comunicaciones de nuestro agente que no esté debidamente identificado.
+	\item \textbf{World Manager}: los agentes encargados de cada práctica. Gestiona todo lo referente al \textbf{''mundo''} donde virtualmente se lleva a cabo dicha práctica.
+	\item \textbf{Hackathoners}: tiene la misma funcionalidad que los agentes \textbf{World Manager}, pero estos únicamente entran en acción para los desafíos individuales.
+\end{itemize}
+
+Adicionalmente en algunas de las prácticas en grupo se implementan otros agentes que se encargarán de ciertas labores específicias, como por ejemplo, proveer al alumnado de los mapas de cada \textbf{''mundo''} para poder ubicar al dron o hacer las veces de mercado en el cual el alumnado deberá comprar los sensores que estimen oportunos para las funciones que tiene que cumplir el dron.\\
+
+Existen también otros servicios adicionales \textit{(como el de Telegram)} que se ejecutan de manera independiente de los agentes pero que realizan labores específicas, como por ejemplo el control del progreso en la plataforma web de la asignatura o la correcta gestión y almacenamiento de la información en la base de datos.
+
+\section{Estructura de la base de datos}
+
+\section{Bot de Telegram}
+
+Todo lo relacionado con el comportamiento actual del bot de Telegram se gestiona a través de un servicio lanzado al mismo ecosistema de agentes de la asignatura y que se mantiene a la espera de recibir las comunicaciones de otros agentes o de los propios alumnos.\\
+
+El funcionamiento de este bot, parte de enviar nuestra \textbf{cardID} como archivo al mismo bot. Éste hará las comprobaciones necesarias y verificará tu identidad para futuras comunicaciones con el mismo. Una vez verificada tu identidad, se establecerá una conexión con tu persona dentro de la asignatura y con tu chat único en Telegram. A través de ahí, se podrá hacer uso de los distintos comandos para obtener la retroalimentación correspondiente. Además, el bot nos informará de la ejecución de una práctica concreta: qué movimientos estamos haciendo, en qué estamos fallando, cuándo hemos completado una meta...
