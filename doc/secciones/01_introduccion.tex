@@ -1,7 +1,7 @@
 \chapter{Introducción}
 \label{chap:introduccion}
 
-Durante las últimas décadas se ha popularizado mucho el uso de agentes independientes \textit{(aunque este término es ciertamente redundante} para uso diario, en nuesta vida cotidiana. Hoy en día tenemos varios ejemplos muy claros de este término, y en su mayoría, relacionados estrechamente con la inteligencia artificial.\\
+Durante las últimas décadas se ha popularizado mucho el uso de agentes independientes \textit{(aunque este término es ciertamente redundante)} para uso diario, en nuesta vida cotidiana. Hoy en día tenemos varios ejemplos muy claros de este término, y en su mayoría, relacionados estrechamente con la inteligencia artificial.\\
 
 El robot aspirador que tenemos en nuestra casa programado, para que a cierta hora del día recorra las habitaciones que nosotros le indiquemos, es ciertamente un agente que usa la información de su entorno para realizar sus tareas.\\
 
@@ -11,15 +11,15 @@ Estos dos ejemplos anteriores se refieren a sistemas de un solo agente, aunque e
 
 \section{Definición de agente}
 
-Como es habitual en la mayoría de definiciones de la informática, a lo largo de los años se han propuesto diversas definiciones para el término de agente. Michael Wooldridge en su libro \textit{An Introduction to MultiAgent Systems}\cite{wooldridge-2009} introduce el término \textit{agente} como \textit{''un sistema capaz de realizar acciones de manera autónoma en algún entorno, para lograr las tareas que le han sido delegadas''}.\\
+Como es habitual en la mayoría de definiciones de la informática, a lo largo de los años se han propuesto diversas definiciones para el término de agente. Michael Wooldridge en su libro \textit{An Introduction to MultiAgent Systems} \cite{wooldridge-2009} introduce el término \textit{agente} como \textit{''un sistema capaz de realizar acciones de manera autónoma en algún entorno, para lograr las tareas que le han sido delegadas''}.\\
 
-El profesor Yoav Shoham de la Universidad de Stanford, publicó en 1991 el artículo \textit{Agent-oriented programming}\cite{Shoham}, en el cual hace una reflexión a cerca del uso que se le está dando al término. Esencialmente, lo que quiere transmitir es que el término se ha hecho tan popular en las últimas décadas, que ha dejado de tener sentido sin hacer alguna referencia particular a alguna noción de agente. Como por ejemplo, el ser autónomo, algo que el profesor indica que no es preciso, pero que se usa para indicar que las actividades que realizan los agentes no requieren intervención humana constante.\\
+El profesor Yoav Shoham de la Universidad de Stanford, publicó en 1991 el artículo \textit{Agent-oriented programming} \cite{Shoham}, en el cual hace una reflexión a cerca del uso que se le está dando al término. Esencialmente, lo que quiere transmitir es que el término se ha hecho tan popular en las últimas décadas, que ha dejado de tener sentido sin hacer alguna referencia particular a alguna noción de agente. Como por ejemplo, el ser autónomo, algo que el profesor indica que no es preciso, pero que se usa para indicar que las actividades que realizan los agentes no requieren intervención humana constante.\\
 
 A pesar de que hay muchas más definiciones, a partir de ahora en este documento se entenderá como agente a \textit{''un sistema computacional situado en un entorno y capaz de actuar de forma independiente o autónoma para conseguir sus propios objetivos, sin que una persona tenga que decirle cómo lograrlos, en representación de otra instancia (ya sea otro agente, una persona o él mismo)''}. Esta definición es la ha sido impartida en la asignatura previamente mencionada y la que por tanto hemos adoptado durante el desarrollo de la misma.
 
 \section{Sistemas Multiagente}
 
-Debido a nuestra propia naturaleza, los seres humanos estamos condenados a vivir en sociedad para la realización de objetivos propios u objetivos comunes, que nos ayuden a progresar individual o colectivamente dentro de nuestros intereses. De igual forma, si establecemos un sistema en el que conviven varios agentes, podemos delegar diferentes tareas en cada uno de ellos para que entre todos puedan resolver un problema.\\
+Debido a nuestra propia naturaleza, los seres humanos nos atenemos a vivir en sociedad para la realización de objetivos propios u objetivos comunes, que nos ayuden a progresar individual o colectivamente dentro de nuestros intereses. De igual forma, si establecemos un sistema en el que conviven varios agentes, podemos delegar diferentes tareas en cada uno de ellos para que entre todos puedan resolver un problema.\\
 
 Volviendo al ejemplo de la flota de drones autónomos mencionado anteriormente, podríamos imaginarnos que esta flota de drones tiene como objetivo localizar varios paquetes en un bosque de grandes dimensiones. En principio, no nos importa cuántos drones tengamos, únicamente queremos que enter todos localicen en un área determinada unos objetivos.\\
 
@@ -33,9 +33,9 @@ La comunicación es la base fundamental para poder convivir en sociedad. Nosotro
 
 Con respecto a los agentes, puesto que también hemos destacado que van a pertenecer a una sociedad (de agentes), es necesario establecer un lenguaje que puedan entender todos, al menos, de un mismo sistema. En sistemas de pequeña o media escala, basta con establecer un estándar de comunicación y adaptar todos los agentes de dicho sistema al mismo, para que puedan entender los mensajes provenientes de otros agentes, y de igual forma facilitar que otros agentes entiendan de manera sencilla los mensajes que envíen. En sistemas más grandes, es posible que exista un agente mediador que se encargará de homogeneizar todas las transmisiones entre agentes para que todos puedan entenderse en la red.\\
 
-La \textbf{F}oundation for \textbf{I}ntelligent \textbf{P}hysical \textbf{A}gents, \textit{FIPA de ahora en adelante}, es una organización internacional que se dedica a la promoción en la industria de agentes inteligentes mediante el desarrollo de especificaciones y estándares para soportar la interoperabilidad entre agentes y entre aplicaciones basadas en agentes \cite{FIPA}.\\
+La \textbf{F}oundation for \textbf{I}ntelligent \textbf{P}hysical \textbf{A}gents, \textit{FIPA de ahora en adelante}, es una organización internacional que se dedica a la promoción en la industria de agentes inteligentes mediante el desarrollo de especificaciones y estándares para soportar la interoperabilidad entre agentes y entre aplicaciones basadas en agentes \cite{unknown-author-2002B}.\\
 
-En 2002, la FIPA publicó el documento \textit{FIPA ACL Message Structure Specification}\cite{FIPA} calificándolo de estándar, mediante el cual buscaba establecer una serie de parámetros y directivas para asegurar la comunicación entre agentes. El acrónimo \textit{ACL} se refiere en inglés a \textit{Agent Communication Language}\cite{JADEMessage}, lo cual nos clarifica aún más que se trata de un conjunto de parámetros de mensaje para realizar las comunicaciones de manera efectiva.\\
+En 2002, la FIPA publicó el documento \textit{FIPA ACL Message Structure Specification} \cite{unknown-author-2002B} calificándolo de estándar, mediante el cual buscaba establecer una serie de parámetros y directivas para asegurar la comunicación entre agentes. El acrónimo \textit{ACL} se refiere en inglés a \textit{Agent Communication Language} \cite{JADEMessage}, lo cual nos clarifica aún más que se trata de un conjunto de parámetros de mensaje para realizar las comunicaciones de manera efectiva.\\
 
 \subsection{Estructura de un mensaje ACL}
 En el estándar anteriormente mencionado, se establecen una serie de parámetros que un mensaje puede o no incluir en un sistema para hacer efectiva la comunicación entre dos agentes. Más concretamente, el único parámetro obligatorio para la comunicación es la \textbf{performativa} \textit{(performative, en inglés)}, aunque generalmente es razonable incluir otros parámetros como por ejemplo el remitente, el destinatario o el contenido del propio mensaje. En la tabla \ref{tab:aclparams} se pueden observar los distintos parámetros junto a la categoría que pertenecen acorde al estándar ACL de FIPA.\\
@@ -152,7 +152,7 @@ En este pequeño fragmento de código, lo que nos interesa saber es que si no se
 
 \section{LARVA}
 
-LARVA es el acrónimo de \textit{Learning Analytics Recollecion and Visualization Agents} y es un conjunto de agentes que forman un ecosistema y que se ejecutan en un servidor concreto cuyo objetivo es medir el progreso y aprendizaje del alumno a través de las diferentes competencias de la asignatura Desarrollo Basado en Agentes, mostrándole su progreso y puntuación conseguidos de manera inmediata.\\
+LARVA es el acrónimo de \textit{Learning Analytics Recollection and Visualization Agents} y es un conjunto de agentes que forman un ecosistema y que se ejecutan en un servidor concreto cuyo objetivo es medir el progreso y aprendizaje del alumno a través de las diferentes competencias de la asignatura Desarrollo Basado en Agentes, mostrándole su progreso y puntuación conseguidos de manera inmediata.\\
 
 LARVA hace uso de varios agentes para la verificación de las competencias. Generalmente, en las prácticas de la asignatura, el agente \textit{IntegratedAgent} será el que compruebe el progreso del alumno analizando las conversaciones entre los diferentes agentes con el servidor, para saber cuándo verdaderamente se ha completado un hito.\\
 

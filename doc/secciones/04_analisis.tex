@@ -20,6 +20,63 @@ Existen también otros servicios adicionales \textit{(como el de Telegram)} que 
 
 \section{Estructura de la base de datos}
 
+Tal y como se ha comentado en capítulos anteriores, a pesar de que el esquema actual de la base de datos, el mismo que se utilizó para el desarrollo de la asignatura y que mantendré, en consenso con el tutor de este proyecto, es mejorable en varios aspectos. No obstante, a continuación se exponen todos los aspectos relevantes con respecto a la estructura de la base de datos y sus implicaciones en el proyecto.\\
+
+Para empezar, tenemos varias entidades independientes en la asignatura que podemos identificar de manera sencilla:
+
+\begin{itemize}
+    \item Alumnos
+    \item Agentes
+    \item Prácticas
+    \item Problemas \textit{(asociados a cada práctica)}
+    \item Insignias
+    \item Analíticas de aprendizaje \textit{(en relación a LARVA)}
+\end{itemize}
+
+A medida que vayamos avanzando en las explicaciones de este apartado, surgirán de manera natural otras entidades que posteriormente serán convertidas en tablas y asociaciones entre las mismas.\\
+
+Con respecto a los \textbf{alumnos}, surge la tabla \textbf{Users} que tiene como estructura la que se muestra en la tabla \ref{tab:usersdb}. Esta tabla es bastante intuitiva pero requirió de una columna adicional a la hora del desarrollo, una columna que almacenase el nivel de notificación \textit{(véase la tabla \ref{tab:usersdb2})} que cada usuario quisiese dentro del propio bot de Telegram. Ese nivel de notificación se podrá cambiar mediante un comando a través del mismo bot.
+
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Columna} & \textbf{Descripción}                                                                                             & \textbf{Tipo} \\ \hline
+userID          & Identificador único de cada usuario                                                                              & int           \\ \hline
+name            & Nombre del usuario                                                                                               & string        \\ \hline
+email           & Correo electrónico institucional del usuario                                                                     & string        \\ \hline
+isTeacher       & \begin{tabular}[c]{@{}l@{}}Celda para especificar si el usuario es profesor\\ o no de la asignatura\end{tabular} & bool          \\ \hline
+agentID         & \begin{tabular}[c]{@{}l@{}}El identificador único del agente asociado\\ a dicho alumno\end{tabular}              & int           \\ \hline
+alias           & \begin{tabular}[c]{@{}l@{}}Pseudónimo bajo el que se conoce al usuario\\ en la plataforma\end{tabular}           & string        \\ \hline
+chatID          & \begin{tabular}[c]{@{}l@{}}Identificador único del chat de Telegram de\\ dicho usuario\end{tabular}              & int           \\ \hline
+lastUpdate      & \begin{tabular}[c]{@{}l@{}}Fecha de la última actualización del usuario\\ en la plataforma\end{tabular}          & string        \\ \hline
+invitedGroup    & Grupo al que pertenece el usuario                                                                                & int           \\ \hline
+\end{tabular}%
+}
+\caption{Estructura de la tabla \textbf{Users} en la base de datos}
+\label{tab:usersdb}
+\end{table}
+
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Columna} & \textbf{Descripción}                                                                                             & \textbf{Tipo} \\ \hline
+notificationSettings       & \begin{tabular}[c]{@{}l@{}}Nivel de notificación que el usuario\\ desea recibir\end{tabular} & string          \\ \hline
+\end{tabular}%
+}
+\caption{Columna adicional en la tabla \textbf{Users} de la base de datos}
+\label{tab:usersdb2}
+\end{table}
+
+Así pues queda definida la estructura de los usuarios del sistema. Los usuarios, a no ser que sean profesores, pertenecen también a un grupo de prácticas que se establece más adelante en el curso una vez lleguen las prácticas que requieren de grupos para ser completadas.\\
+
+Los usuarios pertenecen a un curso concreto, modelado a través de las tablas \textbf{Courses} y \textbf{CourseRegistration} que son tablas auxiliares que mantienen un registro de los estudiantes en la asignatura por cada curso.\\
+
+Cada curso, a su vez, tiene unas determinadas prácticas almacenados en la tabla \textbf{Assignments}, cuya estructura se ve representada en la tabla \ref{tab:assignments}
+
 \section{Bot de Telegram}
 
 Todo lo relacionado con el comportamiento actual del bot de Telegram se gestiona a través de un servicio lanzado al mismo ecosistema de agentes de la asignatura y que se mantiene a la espera de recibir las comunicaciones de otros agentes o de los propios alumnos.\\

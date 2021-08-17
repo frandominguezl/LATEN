@@ -16,9 +16,9 @@
 \usepackage{graphics,graphicx, float} %para incluir imágenes y colocarlas
 \usepackage[gen]{eurosym} %para incluir el símbolo del euro
 \usepackage{cite} %para incluir citas del archivo <nombre>.bib
-\usepackage{apacite}
 \usepackage{enumerate}
 \usepackage{hyperref}
+\usepackage{apacite}
 \usepackage{graphicx}
 \usepackage{tabularx}
 \usepackage{booktabs}
@@ -27,7 +27,8 @@
 \hypersetup{
 	colorlinks=true,	% false: boxed links; true: colored links
 	linkcolor=black,	% color of internal links
-	urlcolor=cyan		% color of external links
+	urlcolor=cyan,		% color of external links
+	citecolor=black
 }
 \renewcommand{\familydefault}{\sfdefault}
 \usepackage{fancyhdr} % Custom headers and footers
@@ -135,7 +136,7 @@
 	
 	\newpage
 	\bibliography{bibliografia}
-	\bibliographystyle{plain}
+	\bibliographystyle{apacite}
 	
 \end{document}
 
