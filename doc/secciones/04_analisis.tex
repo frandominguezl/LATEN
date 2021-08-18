@@ -75,7 +75,108 @@ Así pues queda definida la estructura de los usuarios del sistema. Los usuarios
 
 Los usuarios pertenecen a un curso concreto, modelado a través de las tablas \textbf{Courses} y \textbf{CourseRegistration} que son tablas auxiliares que mantienen un registro de los estudiantes en la asignatura por cada curso.\\
 
-Cada curso, a su vez, tiene unas determinadas prácticas almacenados en la tabla \textbf{Assignments}, cuya estructura se ve representada en la tabla \ref{tab:assignments}
+Cada curso, a su vez, tiene unas determinadas prácticas almacenadas en la tabla \textbf{Assignments}, cuya estructura se ve representada en la tabla \ref{tab:assignments}. Cada práctica puede tener unos determinados problemas que resolver. Más concretamente, como estamos en prácticas en las que se desarrolla un agente \textit{(un dron)} que se desplaza a través de un mapa concreto, estos problemas normalmente serán esos mundos o mapas que tiene que completar cada equipo con su dron correspondiente. La estructura de la tabla \textbf{Problems} se puede observar en la tabla \ref{tab:problems}.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Nombre} & \textbf{Descripción}                                                                                & \textbf{Tipo}                \\ \hline
+assignmentID    & Identificador único de cada práctica                                                                & int                          \\ \hline
+courseID        & Curso al que pertenece la práctica                                                                  & int                          \\ \hline
+title           & Título de la práctica                                                                               & string                       \\ \hline
+isActive        & Controla si la práctica está activa                                                                 & bool                         \\ \hline
+singleStepAuth  & \begin{tabular}[c]{@{}l@{}}Tipo de requerimiento de\\ autenticación\end{tabular}                    & bool                         \\ \hline
+releaseDate     & Fecha de comienzo                                                                                   & string                       \\ \hline
+dueDate         & Fecha límite                                                                                        & string                       \\ \hline
+timing          & \begin{tabular}[c]{@{}l@{}}Programación de las prácticas\\ en la asignatura\end{tabular}            & int                          \\ \hline
+autoScore       & \begin{tabular}[c]{@{}l@{}}Controla si la práctica se \\ evalúa de manera automática\end{tabular}   & decimal                      \\ \hline
+maxScore        & \begin{tabular}[c]{@{}l@{}}Puntuación máxima que se \\ puede obtener con esta práctica\end{tabular} & \multicolumn{1}{l|}{decimal} \\ \hline
+\end{tabular}%
+}
+\caption{Estructura de la tabla \textbf{Problems} en la base de datos}
+\label{tab:assignments}
+\end{table}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Nombre}  & \textbf{Descripción}                                                                                                                            & \textbf{Tipo} \\ \hline
+problemID        & Identificador único de cada problema                                                                                                            & int           \\ \hline
+courseID         & Curso al que pertenece el problema                                                                                                              & int           \\ \hline
+title            & Título del problema                                                                                                                             & string        \\ \hline
+description      & Descripción del problema                                                                                                                        & string        \\ \hline
+requireproblemID & \begin{tabular}[c]{@{}l@{}}Identificador del problema previo\\ requerido para poder completar\\ el problema actual\end{tabular}                 & int           \\ \hline
+milestones       & \begin{tabular}[c]{@{}l@{}}Cadena de caracteres que representan\\ los logros de LARVA que se deben\\ de conseguir en cada problema\end{tabular} & string        \\ \hline
+autoScore        & \begin{tabular}[c]{@{}l@{}}Controla el problema se \\ evalúa de manera automática\end{tabular}                                                  & int           \\ \hline
+\end{tabular}%
+}
+\caption{Estructura de la tabla \textbf{Assignments} en la base de datos}
+\label{tab:problems}
+\end{table}
+
+La última estructura que vamos a comentar es cómo se relacionan las prácticas, los problemas y las analíticas de aprendizaje con cada usuario. Esto se realiza a través de las tablas \textbf{AnalyticsReportAssignment} y \textbf{AnalyticsReportStudent} en las que, esencialmente, se almacenan los datos correspondientes de cada usuario: qué problemas ha resuelto de qué prácticas y qué metas ha conseguido de problema, y las analíticas de aprendizaje que ha conseguido el usuario. Se modelan a través de las tablas \ref{tab:arassignment} y \ref{tab:arstudent} respectivamente.\\
+
+Para terminar este apartado, en la figura \ref{img:erbd} obtenemos el diagrama entidad-relación completo de la base de datos tal y como se encontraba al inicio del proyecto.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Nombre} & \textbf{Descripción}                                                                                                                            & \textbf{Tipo}            \\ \hline
+courseID        & Curso al que pertenece el problema                                                                                                              & int                      \\ \hline
+assignmentID    & \begin{tabular}[c]{@{}l@{}}Identificador único de la práctica\\ en cuestión\end{tabular}                                                        & int                      \\ \hline
+whoID           & Identificador único del usuario                                                                                                                 & int                      \\ \hline
+problemID       & \begin{tabular}[c]{@{}l@{}}Identificador único del problema\\ de la práctica\end{tabular}                                                       & int                      \\ \hline
+milestones      & \begin{tabular}[c]{@{}l@{}}Cadena de caracteres que representan\\ los logros de LARVA que se han\\ conseguido en el problema\end{tabular}       & string                   \\ \hline
+
+count           & Número de metas alcanzadas                                                                                                                      & int                      \\ \hline
+firstsolved     & Fecha de la primera resolución                                                                                                                  & \multicolumn{1}{l|}{int} \\ \hline
+latencysolved   & Tiempo que tardó en resolverse                                                                                                                  & \multicolumn{1}{l|}{int} \\ \hline
+costsolved      & Costo de resolución                                                                                                                             & \multicolumn{1}{l|}{int} \\ \hline
+benefitsolved   & \begin{tabular}[c]{@{}l@{}}Beneficio obtenido a través de la\\ resolución\end{tabular}                                                          & \multicolumn{1}{l|}{int} \\ \hline
+firstopen       & \begin{tabular}[c]{@{}l@{}}Fecha de la primera vez que se\\ ingresó al problema\end{tabular}                                                    & \multicolumn{1}{l|}{int} \\ \hline
+\end{tabular}%
+}
+\caption{Estructura de la tabla \textbf{AnalyticsReportAssignment} en la base de datos}
+\label{tab:arassignment}
+\end{table}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Nombre} & \textbf{Descripción}                                                                                                                  & \textbf{Tipo} \\ \hline
+userID          & Identificador único del usuario                                                                                                       & int           \\ \hline
+courseID        & Curso al que pertenece el usuario                                                                                                     & int           \\ \hline
+competenceID    & \begin{tabular}[c]{@{}l@{}}Identificador único del tipo de\\ competencia\end{tabular}                                                 & string        \\ \hline
+milestones      & \begin{tabular}[c]{@{}l@{}}Cadena de caracteres que representan\\ los logros de LARVA alcanzados\\ \\ en esa competencia\end{tabular} & string        \\ \hline
+count           & Número de metas alcanzadas                                                                                                            & string        \\ \hline
+\end{tabular}%
+}
+\caption{Estructura de la tabla \textbf{AnalyticsReportStudent} en la base de datos}
+\label{tab:arstudent}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.35\textwidth]{logos/erbd.png}\\[1.4cm]
+\caption{Diagrama entidad-relación de la base de datos del proyecto al inicio del mismo}
+\label{img:erbd}
+\end{figure}
 
 \section{Bot de Telegram}
 
