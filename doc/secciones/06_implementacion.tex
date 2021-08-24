@@ -153,4 +153,170 @@ Por último, tenemos el elemento \textbf{dbconnection} que posee toda la configu
 
 \section{Implementación}
 
-\subsection{Comunicación con el agente LATEN}
+\subsection{Agente LATEN}
+
+El agente LATEN en un inicio se planificó como el agente encargado de interactuar con el resto de los agentes de la red, haciendo de puente entre aquellos agentes destinados a la resolución de las prácticas, como los ya mencionados \textbf{WorldManagers} y entre el propio bot de Telegram.
+
+\subsubsection{Clase principal}
+
+En todo el ecosistema ya mencionado, los agentes se lanzan a la plataforma esencialmente de la misma forma, con quizás algunos cambios. Se puede apreciar en el siguiente fragmento de código, en el que explicaré brevemente en qué consiste cada línea.
+
+\begin{lstlisting}
+    static ConsoleBoot _app;
+
+    public static void main(String[] args) {
+        _app = new ConsoleBoot("LATEN", args);
+        _app.selectConnection();
+        _app.launchAgent(LATEN.class);
+        _app.shutDown();
+    }
+\end{lstlisting}
+
+Para comenzar, creamos un objeto de clase de la clase \textbf{ConsoleBoot}, la cual es una clase creada por el profesor de la asignatura para ejecutar aplicaciones JADE con todo lo necesario para que los agentes se puedan ejecutar \textbf{(y ser cerrados)} de manera segura ya sea en nuestra máquina local o en remoto.\\
+
+El siguiente método \textbf{selectConnection()}, selecciona la conexión que hayamos definido en nuestro archivo de configuración JSON, ya sea nuestra máquina local o una máquina remota, como podría ser el propio servidor de la asignatura para realizar las propias prácticas.\\
+
+\textbf{launchAgent()} básicamente lanza al agente a la plataforma y el método \textbf{shutDown()} cerrará el agente junto con los contenedores creados cuando el método \textbf{plainExecute()} de la clase \textbf{LATEN} termine de ejecutarse y por tanto haya finalizado el trabajo del agente.
+
+\subsubsection{El método plainExecute()}
+
+Este es el método principal de la clase \textbf{LATEN}. Es el que se ejecutará durante toda la vida útil del agente. El propósito actual de dicho agente es el de leer, interpretar y actuar sobre los distintos registros de las sesiones prácticas de la asignatura. Al comienzo de este proyecto, el tutor me facilitó los registros reales de las prácticas del grupo de prácticas al que yo pertenecía durante la asignatura, los cuales usé para poder implementar y probar esta funcionalidad.\\
+
+Al lanzar el agente LATEN a la plataforma, para proceder a la lectura e interpretación de los registros, se siguen los siguientes pasos:\\
+
+\begin{enumerate}
+    \item Identificar el grupo al que pertenece dicho registro
+    \item Identificar los miembros de dicho grupo
+    \item Obtener los ajustes de noticaciones específicos de cada usuario del grupo
+    \item Analizar cada línea y enviar los mensajes correspondientes al agente de Telegram para que éste informe a los miembros correspondientes
+\end{enumerate}
+
+Los tres primeros puntos de la lista anterior se pueden observar, de manera breve en el siguiente fragmento de código:
+
+\begin{lstlisting}
+    // Identify which group does this communication belong to
+    this.group = this.identifyGroup(myReader.nextLine());
+    
+    // Verify which members do we have to send the message to
+    // First, obtain the groupID
+    JsonObject groupID = _dataBase.queryJsonDB("SELECT groupID FROM LATEN.Groups WHERE alias='" + this.group + "'").getRowByIndex(0);
+    
+    // Members belonging to that group
+    JsonArray usersID = _dataBase.queryJsonDB("SELECT userID FROM GroupMembers WHERE cardID IS NOT NULL AND groupID=" + groupID.get("groupID")).getAllRows();
+    
+    for(int i = 0; i < usersID.size(); i++) {
+        this.groupMembers.add(usersID.get(i).asObject());
+    }
+    
+    // Adds the notifications settings for each user
+    for(JsonObject groupMember : this.groupMembers) {
+        JsonObject usersNotifications = 
+                _dataBase.queryJsonDB("SELECT notificationSettings FROM Users WHERE userID=" + groupMember.get("userID")).getRowByIndex(0);
+        
+        groupMember.add("notificationSettings", usersNotifications.get("notificationSettings"));
+    }
+\end{lstlisting}
+
+Como se puede observar, se realizan varias consultas a la base de datos y estos datos se van almacenando en ciertas variables de la clase para su posterior uso.\\
+
+Con respecto al último punto, al comienzo del método se declaran las siguientes variables, que sirven para abrir y leer el archivo correspondiente de las sesiones:
+
+\begin{lstlisting}
+    File ficheroSesiones = new File(sessionFile);
+    Scanner myReader = new Scanner(ficheroSesiones);
+\end{lstlisting}
+
+De tal forma, una vez se hayan hecho todas las consultas necesarias a la base de datos y almacenado los datos correspondientes, podremos iterar sobre cada línea del registro con un bucle y así analizar y actuar sobre cada línea:
+
+\begin{lstlisting}
+    while(myReader.hasNextLine()) {
+        String linea = myReader.nextLine();
+        
+        JsonObject jsonLine = Json.parse(linea).asObject();
+        String info;
+        
+        if (linea.contains("acl_receive_REGULAR") && linea.contains("\"command\":\"login\"")) {
+            // This is a notification marked as ALL
+            String newConvIDs = this.buildNotificationString("ALL");                
+            
+            sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", Emojis.ENVELOPE + " Sending login request...", newConvIDs);
+            
+        } else if (linea.contains("acl_send_REGULAR") && linea.contains("Login request from")) { [...]
+\end{lstlisting}
+
+\subsubsection{Métodos auxiliares}
+
+En el método \textbf{plainExecute()} se han podido observar otras funciones auxiliares que se programaron para modularizar lo máximo posible el agente y hacerlo así más legible, y sobre todo más mantenible de cara a un futuro. A continuación se comentan las más relevantes:\\
+
+La primera que procedo a comentar es quizás la más destacable y la más usada, ya que en cada condición diferente del bucle principal del método \textbf{plainExecute()} se usa. Es la función encargada de mandar un mensaje a un determinado agente de la plataforma. Recibe ciertos parámetros como el nombre del agente, la performativa a enviar, o el contenido, como se puede observar a continuación:\\
+
+\begin{lstlisting}
+    /**
+     * Sends a message
+     * @param receiver Message's receiver
+     * @param performative The performative to use
+     * @param protocol Message's protocol
+     * @param content Message's content
+     * @param conversationID The conversation ID to send the message to
+     */
+    protected void sendMessage(String receiver, int performative, String protocol, String content, String conversationID) {
+        ACLMessage out = new ACLMessage();
+        out.setSender(this.getAID());
+        out.addReceiver(new AID(receiver, AID.ISLOCALNAME));
+        out.setPerformative(performative);
+        out.setProtocol(protocol);
+        out.setContent(content);
+
+        if(conversationID != "") {
+            out.setConversationId(conversationID);
+        }
+
+        this.send(out);
+    }
+\end{lstlisting}
+
+Como observamos en la función anterior, es necesario proveer de un \textit{conversationID}, que es esencialmente una cadena de caracteres, que puede estar separada por espacios, en la que se indica cada uno de los chats a los que se les debe entregar cada mensaje. Así pues, en la siguiente función lo que se hace es constuir esa cadena de caracteres en base a las preferencias de notificaciones de cada usuario:\\
+
+\begin{lstlisting}
+    /**
+     * Returns an updated list of conversation IDs to send the notifications
+     * @param notification rank
+     * @return String containing the conversation IDs
+     */
+    protected String buildNotificationString(String notification) {
+        String convIDs = "";
+        
+        for (JsonObject groupMember : this.groupMembers) {
+            for (String type : notification.trim().split(" ")) {
+                if (groupMember.get("notificationSettings").toString().replaceAll("\"", "").equals(type)) {
+                    convIDs = convIDs + " " + groupMember.get("userID").toString();
+                }
+            }
+        }
+        
+        return convIDs;
+    }
+\end{lstlisting}
+
+De tal modo, en la siguiente línea se especifica que se debe enviar ese mensaje concreto, a aquellos usuarios que tengan las preferencias de notificaciones en \textit{''ALL''}:\\
+
+\begin{lstlisting}
+    // This is a notification marked as ALL
+    String newConvIDs = this.buildNotificationString("ALL");
+\end{lstlisting}
+
+Como ya se ha comentado en otras ocasiones, debido a falta de tiempo y otros diversos problemas, no se ha podido proceder al lanzamiento de este agente a la plataforma con el resto de agentes de la asignatura. Se comentarán más detalles en la sección de trabajos futuros.
+
+\subsection{Agente PTelegram \textit{(Public Telegram)}}
+
+\subsubsection{Clase principal}
+
+\subsubsection{El método plainExecute()}
+
+\subsubsection{Métodos auxiliares}
+
+\subsection{Resto de clases y utilidades}
+
+\section{Diagrama de clases}
+
+\section{Ejemplo de comunicación entre agentes}
