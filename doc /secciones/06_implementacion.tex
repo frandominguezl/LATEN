@@ -309,14 +309,170 @@ Como ya se ha comentado en otras ocasiones, debido a falta de tiempo y otros div
 
 \subsection{Agente PTelegram \textit{(Public Telegram)}}
 
+El agente correspondiente al proyecto PTelegram, denominado de igual forma en la plataforma de agentes, es aquel que se encargará esencialmente de procesar todas las actualizaciones que lleguen tanto de Telegram como a través de mensajes provenientes de otros agentes en la red. Este proyecto parte del proyecto inicialmente desarrollado por el profesor, llamado \textbf{PublicTelegram}, y el motivo por el que crear uno idéntico a ese y renombrarlo a \textbf{PTelegram} fue esencialmente por facilidad a la hora del desarrollo, tal y como sugirió el tutor del proyecto.\\
+
+Este agente hereda del agente \textbf{BaseTelegram}, que proporciona funcionalidad abstracta para su posterior implementación. El motivo de tener esta clase padre, es que en la asignatura existen dos tipos de bots de Telegram: el bot destinado a los alumnos \textit{(PublicTelegram)} y el bot destinado al profesor \textit{(PrivateTelegram)}.
+
 \subsubsection{Clase principal}
+
+Como podemos observar en el siguiente fragmento de código, la manera de inicializar el agente perteneciente a \textit{PTelegram} es prácticamente idéntica a la del agente \textit{LATEN}. La única diferencia, obviamente, es el nombre que se le pasa como parámetro al crear el objeto de la clase \textbf{ConsoleBoot}:\\
+
+\begin{lstlisting}
+    public static void main(String[] args) {
+        ConsoleBoot app = new ConsoleBoot("AgentTelegram", args);
+        app.selectConnection();
+        app.launchAgent(PublicTelegram.class);
+        app.shutDown();
+    }
+\end{lstlisting}
 
 \subsubsection{El método plainExecute()}
 
+Como se ha mencionado anteriormente, la clase \textbf{PTelegram} hereda de \textbf{BaseTelegram}, y por lo tanto esta clase hija no tiene un método \textit{plainExecute()} definido, si no que usará por defecto el de la clase padre.\\
+
+Es importante diferenciar entre dos tipos de actualizaciones que le llegaran al agente. En primer lugar, tenemos las actualizaciones que llegan evidentemente desde cada chat de Telegram. Esto es, cuando un usuario utiliza cualquiera de los comandos operativos en el mismo. Además, tenemos las actualizaciones provenientes del resto de agentes de la red y más concretamente para este proyecto, aquellos mensajes que son enviados desde nuestro agente \textbf{LATEN} hacia el agente \textbf{PTelegram} para proceder a la difusión de mensajes en los chats correspondientes.\\
+
+Por tanto, la misión del método \textit{plainExecute()}, que recordemos que se ejecuta \textit{''indefinidamente''}, será la de comprobar periódicamente si existen actualizaciones de cualquiera de los dos tipos mencionados y procesarlas como sea necesario:\\
+
+\begin{lstlisting}
+    @Override
+    public final void plainExecute() {
+        Update u; // Cola de mensajes de Telegram (Telegramchat)
+        ACLMessage iu; // Cola de mensajes de LARVA blockingReceive()
+    
+        // Process one single update for every queue, to do a kind of leveled answer to all inbound requirements
+        for (long cid : telegramQueue.getAllChatIDActive()) {
+            u = telegramQueue.popUpdateChatID(cid);
+            processTelegramUpdate(cid, u);
+        }
+        
+        // Internal updates
+        this.processACLMUpdates();
+        if (this.internalUpdates.size() > 0) {
+            iu = this.internalUpdates.get(0);
+            this.internalUpdates.remove(0);
+            processInternalUpdate(iu);
+        }
+        
+        // Wait for a little while
+        if (telegramQueue.isAllEmpty() && this.internalUpdates.isEmpty()) {
+            doBlock(500);
+        }
+    }
+\end{lstlisting}
+
+Los dos método que se llaman en este método, \textit{processTelegramUpdate} y \textit{processInternalUpdate} son métodos abstractos de la clase \textbf{BaseTelegram} que deberán ser implementados ya sea en \textbf{PTelegram} o en \textbf{PrivateTelegram}.\\
+
+Para comenzar, el método \textit{processTelegramUpdate} implementado en \textbf{PTelegram}, una vez recibe una actualización de un chat de Telegram, verifica que está haciendo uso de uno de los comandos establecidos y ejecuta la función correspondiente, como se puede observar en el siguiente fragmento de código \textit{(incompleto y adaptado a este documento)}:\\
+
+\begin{lstlisting}
+    @Override
+    protected void processTelegramUpdate(long cid, Update u) {
+        if (!isDebug || cid == this.LCastilloCID) {
+            TelegramChat tc = this.telegramQueue.getChatData(cid);
+            File cardfile;
+            if (u.getMessage().hasText()) {
+                String line = u.getMessage().getText(), parameters[] = line.split(" ");
+                switch (parameters[0]) {
+                    case "/help":
+                        this.sendTelegram(cid, help(cid));
+                        break;
+                        
+                    case "/notificationstatus":
+                        doCheckNotificationsStatus(cid);
+                        break;
+                        
+                    case "/myprogress":
+                        doMyProgress(cid);
+                        break;
+                        
+                    default:
+                        this.sendTelegram(cid, hello);
+        [...]
+\end{lstlisting}
+
+Por último, el método \textit{processInternalUpdate} actúa de manera similar. Tras unas comprobaciones iniciales, procede a comprobar qué performativa recibe del mensaje correspondiente y así realizar las accioens necesarias \textit{(fragmento de código incompleto y adaptado a este documento)}:\\
+
+\begin{lstlisting}
+    @Override
+    protected void processInternalUpdate(ACLMessage msg) {
+        ArrayList<Long> usersinvolved = new ArrayList();
+        String what, convid = "";
+        JsonObject jsreport;
+
+        try {
+            [...]
+            switch (msg.getPerformative()) {
+                case ACLMessage.REQUEST:
+                    [...]
+                    break;
+                case ACLMessage.INFORM:
+                    [...]
+                    break;
+                case ACLMessage.AGREE:
+                    [...]
+                    break;
+            }
+            
+        [...]
+\end{lstlisting}
+
 \subsubsection{Métodos auxiliares}
 
+Con respecto al resto de métodos auxiliares, en concreto para el método \textit{processTelegramUpdate}, se implementan en la propia clase \textbf{BaseTelegram} y se usa uno distinto para cada comando recibido a través de Telegram. Los más complejos requieren de algunas consultas a la base de datos.\\
+
+Por poner un ejemplo, ya que algunos además de consultas a la base de datos requieren de algunos cálculos y comprobaciones adicionales, a continuación se muestra el método \textbf{doSetNotifications()}, que se llama cuando desde Telegram se recibe el comando \textit{/notifications <option>}. Desde la clase \textbf{PTelegram} se comprueba que los parámetros son correctos, y en tal caso, se llama al método \textbf{doSetNotifications()} que actualiza en la base de datos las preferencias de notificaciones del usuario de dicho chat.\\
+
+Una vez hechas las consultas, se envía el mensaje correspondiente al chat del usuario. Un ejemplo del funcionamiento se puede visualizar en la figura \ref{img:exampletelegram}.
+
+\begin{lstlisting}
+    protected void doSetNotifications(long cid, String type) {
+        TelegramChat tc = this.telegramQueue.getChatData(cid);
+        
+        try {
+            _dataBase.updateDB("UPDATE Users SET notificationSettings='" + type + "' WHERE userID='" + tc.getUserID() + "'");
+            this.sendTelegram(cid, Emojis.INFO + " Notifications set to " + type);
+        } catch (Exception ex) {
+            Exception("", ex);
+            this.sendTelegram(cid, Emojis.WARNING + "I could not perform this task due to an internal error. Please try later");
+        }
+    }
+\end{lstlisting}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{logos/exampletelegram.png}\\[1.4cm]
+\caption{Ejemplo del funcionamiento de los comandos \textit{/notifications <option>} y \textit{/notificationstatus} en el bot LATEN de Telegram}
+\label{img:exampletelegram}
+\end{figure}
+
 \subsection{Resto de clases y utilidades}
+
+Además de los proyectos mencionados \textit{(LATEN, PTelegram y BaseTelegram)}, estos se valen de otros proyectos adicionales que han sido desarrollados por el profesor de la asignatura y que simplemente me gustaría comentar para contextualizar este proyecto, a pesar de que no han sido modificados en el ámbito de este proyecto.\\
+
+En la siguiente lista se muestran algunas de las utilidades que considero más importantes:
+
+\begin{itemize}
+	\item Paquete \textbf{AdminKeys \textit{(en el proyecto CoreLARVAAdminObjects)}}: Implementa ciertas utilidades para la encriptación \textit{(y desencriptación)} de las ya mencionadas cardIDs
+	\item Paquete \textbf{Database \textit{(en el proyecto CoreLARVAAdminObjects)}}: Todas las herramientas para poder hacer consultas a la base de datos
+	\item Paquete \textbf{ControlPanel \textit{(en el proyecto CoreLARVAAgents)}}: Proporciona a los estudiantes a tener un panel de control visual para el desarrollo de las prácticas
+	\item Paquete \textbf{Map2D \textit{(en el proyecto CoreLARVAMoreObjects)}}: Es el que visualmente, junto con el paquete \textbf{ControlPanel}, hace que se visualicen correctamente los mapas de las prácticas de la asignatura
+\end{itemize}
+
+Son más las utilidades que se proporcionan y que demuestran que ha sido un trabajo laborioso, largo y cuidado por parte del profesor de la asignatura.
 
 \section{Diagrama de clases}
 
 \section{Ejemplo de comunicación entre agentes}
+
+\section{Control de versiones: git y GitHub}
+
+Además de las herramientas de desarrollo previamente mencionadas en las secciones de este capítulo, se han usado además otras dos herramientas para facilitar el desarrollo.\\
+
+En concreto, para tener un control de las distintas versiones del proyecto, tanto a nivel de código como a nivel de documentación, he usado \textit{git} como tecnología de control de versiones y \textit{GitHub} para almacenar todo el proyecto.\\
+
+El motivo de usar control de versiones surge desde el comienzo de mis estudios en el grado de Ingeniería Informática, donde se me presentó la necesidad de almacenar mis proyectos en un lugar seguro para evitar posibles pérdidas y además poder volver a versiones anteriores del código por si en algún momento del desarrollo algún componente falla, o se introduce algún fragmento de código que hace dejar de funcionar otra parte de manera estrepitosa.\\
+
+Así, esa necesidad siguió evolucionando y siendo implementada de mejor manera por mi parte de lo largo del grado hasta llegar a este proyecto. Debido a la naturaleza del proyecto y que contiene algunos fragmentos de código sensibles que los alumnos de la asignatura no deberían tener accesibles, el repositorio de GitHub no se hará público, decisión que se tomó en consenso con el tutor de este proyecto.\\
+
+No obstante, personalmente he mantenido de manera natural el control de versiones mediante el repositorio de GitHub como si fuese otra asignatura o proyecto más, a pesar de que no se hará público, al menos por ahora.
