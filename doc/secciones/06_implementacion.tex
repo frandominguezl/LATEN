@@ -446,6 +446,28 @@ Una vez hechas las consultas, se envía el mensaje correspondiente al chat del u
 \label{img:exampletelegram}
 \end{figure}
 
+Para una referencia completa de los comandos disponibles a través del bot y sus descripciones, véase la tabla \ref{tab:botcommands}.
+
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Comando}    & \textbf{Descripción}                                                                                                                                                                                                                                                                                                  \\ \hline
+/help               & Show the information of the commands                                                                                                                                                                                                                                                                                  \\ \hline
+/link               & \begin{tabular}[c]{@{}l@{}}Bind this chat to the previously\\ uploaded identity (cardID)\end{tabular}                                                                                                                                                                                                                 \\ \hline
+/whoami             & Checks the last stored identity                                                                                                                                                                                                                                                                                       \\ \hline
+/notifications      & \begin{tabular}[c]{@{}l@{}}Establish the level of notifications\\ that you want to receive:\\ \\ ALL: Receive all notification messages\\ MIN: Receive only the critical\\ messages (errors and goal\\ achievements)\\ ACL: Receive only ACL updates\\ NONE: You won' receive\\ any notifications at all\end{tabular} \\ \hline
+/notificationstatus & \begin{tabular}[c]{@{}l@{}}Check your current level of \\ notifications\end{tabular}                                                                                                                                                                                                                                  \\ \hline
+/myprogress         & \begin{tabular}[c]{@{}l@{}}Outputs your current progress for\\ the whole subject\end{tabular}                                                                                                                                                                                                                         \\ \hline
+/problemprogress    & \begin{tabular}[c]{@{}l@{}}Outputs your current progress for\\ a specific problem of an\\ assignment\end{tabular}                                                                                                                                                                                                     \\ \hline
+/assignmentprogress & \begin{tabular}[c]{@{}l@{}}Outputs your current progress for all\\ the problems of the specified\\ assignment\end{tabular}                                                                                                                                                                                            \\ \hline
+\end{tabular}%
+}
+\caption{Comandos disponibles en el bot de Telegram}
+\label{tab:botcommands}
+\end{table}
+
 \subsection{Resto de clases y utilidades}
 
 Además de los proyectos mencionados \textit{(LATEN, PTelegram y BaseTelegram)}, estos se valen de otros proyectos adicionales que han sido desarrollados por el profesor de la asignatura y que simplemente me gustaría comentar para contextualizar este proyecto, a pesar de que no han sido modificados en el ámbito de este proyecto.\\
@@ -461,6 +483,40 @@ En la siguiente lista se muestran algunas de las utilidades que considero más i
 
 Son más las utilidades que se proporcionan y que demuestran que ha sido un trabajo laborioso, largo y cuidado por parte del profesor de la asignatura.
 
+\section{Entorno de producción. Agentes LATEN y PTelegram en acción.}
+
+Quizás una de las partes más importantes de este proyecto es la de integrar ambos agentes en el ecosistema de agentes disponible para las prácticas de la asignatura. Esta es una tarea que requiere de manera imprescindible la presencia del tutor de este proyecto y profesor de la asignatura Desarrollo Basado en Agentes, D. Luis Castillo Vidal. El motivo es simple, solo él tiene acceso al servidor \textit{isg2.ugr.es}, el cual a través del puerto \textbf{1099} aloja la plataforma de JADE y las comunicaciones entre agentes para las prácticas de la asignatura.\\
+
+Para realizar esto, uno de los días planificados del proyecto se realizó una tutoría entre ambas partes que duró aproximadamente dos horas y media, en la cual se pusieron en marcha todos los mecanismos necesarios para poder ejecutar un agente \textit{(ya sea de un grupo de alumnos o del profesor)} capaz de resolver uno de los mapas pertenecientes a las prácticas. Se reactivó y comprobó toda la infraestructura previa de la asignatura y se hicieron pequeñas adaptaciones para que los agentes \textbf{LATEN} y \textbf{PTelegram} se pudiesen ejecutar en conjunto en la red de agentes. Por ejemplo, y como se ha ejemplificado en el párrafo anterior, es necesario cambiar los datos de acceso tanto a JADE como a la base de datos de los archivos de configuración de ambos agentes, tal y como se muestra a continuación:\\
+
+\begin{lstlisting}
+    [...]
+    "jadeconnection": {
+        "host": "isg2.ugr.es",
+        "port": 1099
+    },
+    "dbconnection": {
+        "host": "isg2.ugr.es",
+        "port": 3306,
+        "database": "Agents",
+        "user": "##",
+        "password": "##"
+    }
+\end{lstlisting}
+
+Es evidente que en dicha base de datos, la original tal y como se quedó tras la finalización de la asignatura necesitaba los cambios \textit{(que no fueron muchos)} para poder adaptarse a todo el comportamiento de los agentes.\\
+
+Una vez puesta en marcha toda la infraestructura y estando disponible para que agentes externos interactúen con ella, es necesario seguir los siguientes pasos para comprobar el correcto funcionamiento de ambos agentes:\\
+
+\begin{itemize}
+	\item Ejecutar el proyecto \textbf{PTelegram} contra el servidor previamente mencionado, para ofrecer su disponibilidad de enviar mensajes a Telegram a aquellos usuarios que sea necesario
+	\item Ejecutar el proyecto \textbf{LATEN} contra el servidor, estando así disponible a recibir las comunicaciones del agente \textbf{WorldManager} para poder procesarlas y enviar los mensajes \textit{(ACL)} necesarios a \textbf{PTelegram} 
+	\item Ejecutar un agente programado por el profesor o por un grupo de alumnos que resuelva \textit{(o que lo intente)} un mapa concreto de una de las prácticas disponibles en la asignatura
+\end{itemize}
+
+El agente resolutor del mapa comenzará a hacer su trabajo tal y como ha sido programado. Las acciones que vaya realizando durante su ejecución serán comunicadas a los agentes que sean necesarios de la red, entre ellos, el \textbf{WorldManager} que replicará los mensajes que le devuelva al agente resolutor también a \textbf{LATEN}. \textbf{LATEN} procesará los mensajes conforme los reciba, y enviará los mensajes necesarios a \textbf{PTelegram}, quien se encargará de también hacer ciertas operaciones y procesos para así servir a los usuarios correspondientes los mensajes a través de Telegram.\\
+
+Además, como \textbf{PTelegram} está activo y disponible, los usuarios también pueden hacer uso de las funcionalidades ya comentadas del propio bot. Estas serán procesadas únicamente por \textbf{PTelegram}, que hará las comprobaciones necesarias y devolverá a los chats de Telegram los mensajes requeridos por los usuarios.
 \section{Diagrama de clases}
 
 \section{Ejemplo de comunicación entre agentes}
