@@ -160,11 +160,11 @@ public abstract class AdminAgent extends IntegratedAgent {
         // Register services
 //        doServiceDF(DFOPERATION.DEREGISTER, "", "");
 //        doServiceDF(DFOPERATION.REGISTER, "", "ADMIN");
-        //this.DBCheckInAgent(getAID());
-        //this.DBaddService(getAID(), "ADMIN");
+        this.DBCheckInAgent(getAID());
+        this.DBaddService(getAID(), "ADMIN");
 
         // Analytics, if any
-        /*String hackathon = (this._config.get("analytics") != null
+        String hackathon = (this._config.get("analytics") != null
                 ? this._config.get("analytics").asObject().getString("play", "") : ""),
                 groupalias = (this._config.get("analytics") != null
                 ? this._config.get("analytics").asObject().getString("group", "") : "");
@@ -174,9 +174,9 @@ public abstract class AdminAgent extends IntegratedAgent {
                 ? this._config.get("analytics").asObject().getInt("groupid", BADRECORD) : BADRECORD);
         if (!groupalias.equals("")) {
             groupID = this.DBgetGroup(groupalias);
-        }*/
+        }
 
-        /*if (assignmentID >= 0) {
+        if (assignmentID >= 0) {
             _analytics = new AnalyticsProject(_dataBase, assignmentID, groupID);
 //            this.doServiceDF(DFOPERATION.REGISTER, "", "Analytics assignmentid " + assignmentID);
             this.DBaddService(getAID(), "Analytics assignmentid " + assignmentID);
@@ -194,10 +194,10 @@ public abstract class AdminAgent extends IntegratedAgent {
                 }
 
             }
-        }*/
+        }
         // Set up listener to notifications
         publicnotifierlist = new ArrayList();
-        /*ArrayList<String> notifaux = this.DBgetAllServiceProviders("NOTIFIER");
+        ArrayList<String> notifaux = this.DBgetAllServiceProviders("NOTIFIER");
         for (String name : notifaux) {
             if (this.isConnected(name)) {
                 publicnotifierlist.add(name);
@@ -210,7 +210,7 @@ public abstract class AdminAgent extends IntegratedAgent {
             if (this.isConnected(name)) {
                 teachertelegram.add(name);
             }
-        }*/
+        }
 
         // Initializes Lab Sessions,
         sessionListbyUser = new HashMap<>();
@@ -225,14 +225,14 @@ public abstract class AdminAgent extends IntegratedAgent {
         _exitRequested = false;
         _emergencymode = false;
         this.fullreport.addReportable(this._dataBase);
-        //myagentID = this.DBgetAgentID(getAID());
-        //this.TeacherTelegramNotification(ROOTTELEGRAM.SETUP, "");
-        //this.GeneralTelegramNotification(Emojis.GREENCIRCLE + " " + getLocalName() + " is up and running");
+        myagentID = this.DBgetAgentID(getAID());
+        this.TeacherTelegramNotification(ROOTTELEGRAM.SETUP, "");
+        this.GeneralTelegramNotification(Emojis.GREENCIRCLE + " " + getLocalName() + " is up and running");
     }
 
     @Override
     protected void takeDown() {
-        //this.TeacherTelegramNotification(ROOTTELEGRAM.TAKEDOWN, "");
+        this.TeacherTelegramNotification(ROOTTELEGRAM.TAKEDOWN, "");
         this.GeneralTelegramNotification(Emojis.REDCIRCLE + " " + getLocalName() + " is going down");
         super.takeDown();
     }

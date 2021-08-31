@@ -25,7 +25,7 @@ public class LATEN extends AdminAgent {
     
     String conversationIDs = "";
     
-    String sessionFile = "CaixaBankSessionO4y7opL7.json";
+    String sessionFile = "Test_log.json";
     String P2Log = "CaixaBank_P2log.json";
     String P3Log = "CaixaBank_P3log.json";
     String testLog = "Test_log.json";
@@ -50,39 +50,28 @@ public class LATEN extends AdminAgent {
             File ficheroSesiones = new File(sessionFile);
             Scanner myReader = new Scanner(ficheroSesiones);
             
-            // Identify which group does this communication belong to
-            this.group = this.identifyGroup(myReader.nextLine());
-            
-            // Verify which members do we have to send the message to
-            // First, obtain the groupID
-            JsonObject groupID = _dataBase.queryJsonDB("SELECT groupID FROM LATEN.Groups WHERE alias='" + this.group + "'").getRowByIndex(0);
-            
-            // Members belonging to that group
-            JsonArray usersID = _dataBase.queryJsonDB("SELECT userID FROM GroupMembers WHERE cardID IS NOT NULL AND groupID=" + groupID.get("groupID")).getAllRows();
-            
-            for(int i = 0; i < usersID.size(); i++) {
-                this.groupMembers.add(usersID.get(i).asObject());
-            }
-            
-            // Adds the notifications settings for each user
-            for(JsonObject groupMember : this.groupMembers) {
-                JsonObject usersNotifications = 
-                        _dataBase.queryJsonDB("SELECT notificationSettings FROM Users WHERE userID=" + groupMember.get("userID")).getRowByIndex(0);
-                
-                groupMember.add("notificationSettings", usersNotifications.get("notificationSettings"));
-            }
-            
-            System.out.println(this.groupMembers.toString());
-            
-            // Set the conversations IDs
-            this.setConvIDs();
-            
             // Consider different type of notifications (all, just the minimum, only ACL Messages, none)
-            
-            while(myReader.hasNextLine()) {
-                String linea = myReader.nextLine();
+            while(this.blockingReceive() != null) {
+                String linea = this.blockingReceive().getContent();
                 
-                JsonObject jsonLine = Json.parse(linea).asObject();
+                Info(linea);
+                
+                if (this.groupMembers.isEmpty()) {
+                    this.fillGroupMembers(linea);
+                    
+                    // Set the conversations IDs
+                    this.setConvIDs();
+                }
+                
+                JsonObject jsonLine;
+                
+                try {
+                    jsonLine = Json.parse(linea).asObject();
+                } catch (Exception e) {
+                    Info(e.toString());
+                    continue;
+                }
+                
                 String info;
                 
                 if (linea.contains("acl_receive_REGULAR") && linea.contains("\"command\":\"login\"")) {
@@ -205,8 +194,10 @@ public class LATEN extends AdminAgent {
                     
                     String agentName = ACLObject.get("sender").asString();
                     
+                    int agentID = this.DBgetAgentID(new AID(agentName, AID.ISLOCALNAME));
+                    
                     JsonObject usersNotifications = 
-                        _dataBase.queryJsonDB("SELECT userID, notificationSettings FROM Users WHERE agentID=" + agentName).getRowByIndex(0);
+                        _dataBase.queryJsonDB("SELECT userID, notificationSettings FROM Users WHERE agentID=" + agentID).getRowByIndex(0);
                     
                     // If the owner of the agent doesn't have the ACL settings, just continue
                     if (!usersNotifications.get("notificationSettings").asString().equals("ACL"))
@@ -249,7 +240,7 @@ public class LATEN extends AdminAgent {
      * @param content Message's content
      * @param conversationID The conversation ID to send the message to
      */
-    protected void sendMessage(String receiver, int performative, String protocol, String content, String conversationID) {
+    protected void sendMessage(String receiver, int performative, String protocol, String content, String conversationID) {        
         ACLMessage out = new ACLMessage();
         out.setSender(this.getAID());
         out.addReceiver(new AID(receiver, AID.ISLOCALNAME));
@@ -286,7 +277,7 @@ public class LATEN extends AdminAgent {
     
     /**
      * Returns an updated list of conversation IDs to send the notifications
-     * @param notification rank
+     * @param notification range
      * @return String containing the conversation IDs
      */
     protected String buildNotificationString(String notification) {
@@ -295,11 +286,41 @@ public class LATEN extends AdminAgent {
         for (JsonObject groupMember : this.groupMembers) {
             for (String type : notification.trim().split(" ")) {
                 if (groupMember.get("notificationSettings").toString().replaceAll("\"", "").equals(type)) {
-                    convIDs = convIDs + " " + groupMember.get("userID").toString();
+                    convIDs = convIDs + " " + groupMember.get("chatID").toString();
                 }
             }
         }
         
         return convIDs;
+    }
+    
+    /**
+     * Fills the object of the group members
+     * @param message The first message received
+     */
+    protected void fillGroupMembers(String message) {
+        // Identify which group does this communication belong to
+        this.group = this.identifyGroup(message);
+
+        // Verify which members do we have to send the message to
+        // First, obtain the groupID
+        JsonObject groupID = _dataBase.queryJsonDB("SELECT groupID FROM Agents.Groups WHERE alias='" + this.group + "'").getRowByIndex(0);
+
+        // Members belonging to that group
+        JsonArray usersID = _dataBase.queryJsonDB("SELECT userID FROM GroupMembers WHERE groupID=" + groupID.get("groupID")).getAllRows();
+        //ArrayList<Integer> usersID = this.DBgetGroupMates(groupID.get("groupID"));
+
+        for(int i = 0; i < usersID.size(); i++) {
+            this.groupMembers.add(usersID.get(i).asObject());
+        }
+
+        // Adds the notifications settings for each user
+        for(JsonObject groupMember : this.groupMembers) {
+            JsonObject usersNotifications = 
+                    _dataBase.queryJsonDB("SELECT chatID, notificationSettings FROM Users WHERE userID=" + groupMember.get("userID")).getRowByIndex(0);
+
+            groupMember.add("notificationSettings", usersNotifications.get("notificationSettings"));
+            groupMember.add("chatID", usersNotifications.get("chatID"));
+        }
     }
 }

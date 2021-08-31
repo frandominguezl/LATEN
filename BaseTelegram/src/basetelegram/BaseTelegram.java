@@ -665,6 +665,9 @@ public abstract class BaseTelegram extends AdminAgent {
     }
 
     protected void sendTelegram(long cid, String what) {
+        if (cid < 0)
+            return;
+        
         this.sendTelegram(cid, "", what, parsemode);
     }
 

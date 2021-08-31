@@ -57,7 +57,7 @@ public class PublicTelegram extends BaseTelegram {
         hello = " Hello, this is agent " + this.getBotName() + ". Type /help for more information ";
         startTelegram();
         _exitRequested = false;
-        //this.DBaddService(getAID(), "NOTIFIER");
+        this.DBaddService(getAID(), "NOTIFIER");
         wakeUP();
     }
 

@@ -8,14 +8,14 @@
     "singlebehaviour": true,
     "boot": "jade",
     "jadeconnection": {
-        "host": "localhost",
+        "host": "isg2.ugr.es",
         "port": 1099
     },
     "dbconnection": {
-        "host": "localhost",
+        "host": "isg2.ugr.es",
         "port": 3306,
-        "database": "LATEN",
-        "user": "fran",
-        "password": "LATEN2021@"
+        "database": "Agents",
+        "user": "agentRW",
+        "password": ".10eeepdARW"
     }
 }
