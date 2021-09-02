@@ -17,9 +17,8 @@ import java.util.ArrayList;
 import java.sql.ResultSet;
 
 public class LATEN extends AdminAgent {
-    
-    ArrayList<String> goalMilestones = new ArrayList<>();
-    ArrayList<String> achievedNormalMilestones = new ArrayList<>();
+
+    ArrayList<String> achievedMilestones = new ArrayList<>();
     
     ArrayList<JsonObject> groupMembers = new ArrayList<>();
     
@@ -36,12 +35,9 @@ public class LATEN extends AdminAgent {
     public void setup() {
         super.setup();
         
-        goalMilestones.add("IGOAL01");
-        goalMilestones.add("IGOAL02");
-        goalMilestones.add("IGOAL03");
-        goalMilestones.add("IGOAL04");
-        
         _exitRequested = false;
+        
+        this.DBaddService(getAID(), "LATEN");
     }
     
     @Override
@@ -53,8 +49,6 @@ public class LATEN extends AdminAgent {
             // Consider different type of notifications (all, just the minimum, only ACL Messages, none)
             while(this.blockingReceive() != null) {
                 String linea = this.blockingReceive().getContent();
-                
-                Info(linea);
                 
                 if (this.groupMembers.isEmpty()) {
                     this.fillGroupMembers(linea);
@@ -98,24 +92,19 @@ public class LATEN extends AdminAgent {
                     String newConvIDs = "";
                     
                     // If we already have achieved this one, don't send the message at all
-                    if (achievedNormalMilestones.contains(milestoneID)) {
+                    if (achievedMilestones.contains(milestoneID)) {
                         continue;
                     }
                     
-                    // Send it if it's a GOAL or an unachieved normal one
-                    if (goalMilestones.contains(milestoneID)) {
-                        message = Emojis.CHEQFLAG + " Goal " + milestoneID + " achieved!";
-                        
-                        // Should be notified always
-                        newConvIDs = this.buildNotificationString("ALL MIN");
-                    } else {
-                        achievedNormalMilestones.add(milestoneID);
-                                              
+                    achievedMilestones.add(milestoneID);
+                    
+                    if (milestoneID.contains("GOAL"))
+                        message = Emojis.CHEQFLAG + " Achieved milestone " + milestoneID;
+                    else
                         message = Emojis.OK + " Achieved milestone " + milestoneID;
-                        
-                        // Should be notified if ALL or MIN
-                        newConvIDs = this.buildNotificationString("ALL");
-                    }
+
+                    // Should be notified if ALL or MIN
+                    newConvIDs = this.buildNotificationString("ALL");
                     
                     sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", message, newConvIDs);
                     
@@ -200,7 +189,7 @@ public class LATEN extends AdminAgent {
                         _dataBase.queryJsonDB("SELECT userID, notificationSettings FROM Users WHERE agentID=" + agentID).getRowByIndex(0);
                     
                     // If the owner of the agent doesn't have the ACL settings, just continue
-                    if (!usersNotifications.get("notificationSettings").asString().equals("ACL"))
+                    if (!usersNotifications.getString("notificationSettings", "").equals("ACL"))
                         continue;
                     
                     String performative = ACLObject.get("performative").asString();
@@ -219,9 +208,6 @@ public class LATEN extends AdminAgent {
                     
                     sendMessage("PTelegram", ACLMessage.AGREE, "REGULAR", message, newConvIDs);
                 }
-                
-                // Wait some time before sending the next one, we don't want to collapse the bot
-                this.blockingReceive(200);
             }
             
             this._exitRequested = true;
@@ -286,7 +272,7 @@ public class LATEN extends AdminAgent {
         for (JsonObject groupMember : this.groupMembers) {
             for (String type : notification.trim().split(" ")) {
                 if (groupMember.get("notificationSettings").toString().replaceAll("\"", "").equals(type)) {
-                    convIDs = convIDs + " " + groupMember.get("chatID").toString();
+                    convIDs = convIDs + " " + groupMember.get("userID").toString();
                 }
             }
         }
@@ -317,10 +303,9 @@ public class LATEN extends AdminAgent {
         // Adds the notifications settings for each user
         for(JsonObject groupMember : this.groupMembers) {
             JsonObject usersNotifications = 
-                    _dataBase.queryJsonDB("SELECT chatID, notificationSettings FROM Users WHERE userID=" + groupMember.get("userID")).getRowByIndex(0);
+                    _dataBase.queryJsonDB("SELECT notificationSettings FROM Users WHERE userID=" + groupMember.get("userID")).getRowByIndex(0);
 
             groupMember.add("notificationSettings", usersNotifications.get("notificationSettings"));
-            groupMember.add("chatID", usersNotifications.get("chatID"));
         }
     }
 }

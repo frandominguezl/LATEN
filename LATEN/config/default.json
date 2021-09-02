@@ -1,7 +1,7 @@
 {
-    "name": "LATEN",
+    "name": "FRAN3",
     "version": "1.0",
-    "silent": false,
+    "silent": true,
     "log": true,
     "system": true,
     "showbehaviour": false,
