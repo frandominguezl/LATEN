@@ -288,7 +288,8 @@ Como observamos en la función anterior, es necesario proveer de un \textit{conv
         
         for (JsonObject groupMember : this.groupMembers) {
             for (String type : notification.trim().split(" ")) {
-                if (groupMember.get("notificationSettings").toString().replaceAll("\"", "").equals(type)) {
+                if (groupMember.get("notificationSettings")
+                .toString().replaceAll("\"", "").equals(type)) {
                     convIDs = convIDs + " " + groupMember.get("userID").toString();
                 }
             }
@@ -516,10 +517,29 @@ Una vez puesta en marcha toda la infraestructura y estando disponible para que a
 
 El agente resolutor del mapa comenzará a hacer su trabajo tal y como ha sido programado. Las acciones que vaya realizando durante su ejecución serán comunicadas a los agentes que sean necesarios de la red, entre ellos, el \textbf{WorldManager} que replicará los mensajes que le devuelva al agente resolutor también a \textbf{LATEN}. \textbf{LATEN} procesará los mensajes conforme los reciba, y enviará los mensajes necesarios a \textbf{PTelegram}, quien se encargará de también hacer ciertas operaciones y procesos para así servir a los usuarios correspondientes los mensajes a través de Telegram.\\
 
-Además, como \textbf{PTelegram} está activo y disponible, los usuarios también pueden hacer uso de las funcionalidades ya comentadas del propio bot. Estas serán procesadas únicamente por \textbf{PTelegram}, que hará las comprobaciones necesarias y devolverá a los chats de Telegram los mensajes requeridos por los usuarios.
-\section{Diagrama de clases}
+Además, como \textbf{PTelegram} está activo y disponible, los usuarios también pueden hacer uso de las funcionalidades ya comentadas del propio bot. Estas serán procesadas únicamente por \textbf{PTelegram}, que hará las comprobaciones necesarias y devolverá a los chats de Telegram los mensajes requeridos por los usuarios.\\
+
+En la figura \ref{img:ejecucion1}, se aprecia una ejecución en tiempo real de los agentes \textbf{LATEN} y \textbf{PTelegram} contra el servidor de la asignatura de Desarrollo Basasdo en Agentes. A la derecha, podemos observar la aplicación Telegram que recibe los mensajes procesados a través de \textbf{LATEN}. A la izquierda y en el centro de la imagen, observamos las interfaces gráficas de un agente que se está encargando de resolver un mapa de una práctica concreta, real, de dicha asignatura. Dicho agente también se está ejecutando contra el mismo servidor, por tanto los resultados obtenidos a la derecha, en la conversación con \textbf{LATEN}, son mensajes reales recibidos en tiempo real conforme el agente resolutor ha ido completando objetivos.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.1\textwidth]{logos/ejecucion1.png}\\[1.4cm]
+\caption{Ejemplo de ejecución en tiempo real de LATEN, PTelegram y un agente resolutor de un mapa concreto}
+\label{img:ejecucion1}
+\end{figure}
+
+\section{Diagrama de la aplicación}
 
 \section{Ejemplo de comunicación entre agentes}
+
+Una herramienta para visualizar lo que está pasando por detrás y que nos servirá de ayuda para contextualizar las imágenes previamente dispuestas en el documento es un diagrama de secuencia. En la figura \ref{img:secuencia}, se muestra un diagrama de secuencia sencillo con el comportamiento esperado de la red de agentes que interactúan directamente, a través de \textbf{PTelegram} con el propio usuario en su chat de Telegram.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.1\textwidth]{logos/secuencia.png}\\[1.4cm]
+\caption{Diagrama de secuencia de la red de agentes}
+\label{img:secuencia}
+\end{figure}
 
 \section{Control de versiones: git y GitHub}
 
@@ -531,4 +551,13 @@ El motivo de usar control de versiones surge desde el comienzo de mis estudios e
 
 Así, esa necesidad siguió evolucionando y siendo implementada de mejor manera por mi parte de lo largo del grado hasta llegar a este proyecto. Debido a la naturaleza del proyecto y que contiene algunos fragmentos de código sensibles que los alumnos de la asignatura no deberían tener accesibles, el repositorio de GitHub no se hará público, decisión que se tomó en consenso con el tutor de este proyecto.\\
 
-No obstante, personalmente he mantenido de manera natural el control de versiones mediante el repositorio de GitHub como si fuese otra asignatura o proyecto más, a pesar de que no se hará público, al menos por ahora.
+No obstante, personalmente he mantenido de manera natural el control de versiones mediante el repositorio de GitHub como si fuese otra asignatura o proyecto más, a pesar de que no se hará público, al menos por ahora.\\
+
+En la figura \ref{img:github}, se puede observar uno de los gráficos que provee GitHub. Este gráfico muestra el número de contribuciones realizadas en el repositorio en un periodo de tiempo determinado. A día tres de septiembre, se puede apreciar un nivel constante en las contribuciones al mismo desde el día cuatro de julio por parte de un único contribuidor \textit{(yo, el autor de este proyecto)}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{logos/github.png}\\[1.4cm]
+\caption{Gráfica de contribuciones del repositorio alojado en GitHub}
+\label{img:github}
+\end{figure}
