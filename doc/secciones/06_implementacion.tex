@@ -2,11 +2,11 @@
 
 \section{Configuración del entorno en NetBeans 12}
 
-El proceo de configuración del entorno en la plataforma de desarrollo NetBeans 12, la cual también usamos durante el desarrollo de la asignatura Desarrollo Basado en Agentes, fue cuanto menos tedioso. Todo el conglomerado de proyectos que posibilitan la ejecución de LATEN es necesario configurarlo, idealmente, a la vez y de manera uniforme.\\
+El proceso de configuración del entorno en la plataforma de desarrollo NetBeans 12, la cual también usamos durante el desarrollo de la asignatura Desarrollo Basado en Agentes, fue cuanto menos tedioso. Todo el conglomerado de proyectos que posibilitan la ejecución de LATEN es necesario configurarlo, idealmente, a la vez y de manera uniforme.\\
 
 Los diferentes proyetos fueron proporcionados por el tutor del proyecto de manera gradual, para de igual forma intentar acoplarlos al nuevo proyecto que se creó, perteneciente al propio agente LATEN. Esto en un primer momento ocasionó problemas de dependencias, tanto de proyectos como de archivos Java \textit{(con terminación .jar)}, incluso de otros paquetes de apoyo.\\
 
-No obstante, tras unas horas de trabajo conjunto con el tutor, se pudo configurar de manera absoluta el proyecto LATEN.\\
+No obstante, tras unas horas de trabajo conjunto con el tutor, se pudo configurar de manera total el proyecto LATEN y el resto de proyectos auxiliares.\\
 
 Los proyectos de NetBeans de los que depende LATEN de una manera u otra, se listan a continuación:
 
@@ -29,7 +29,7 @@ Adicionalmente, se requieren también los siguientes archivos con terminación \
 
 Es importante mencionar también que se requiere de la versión 11 de JDK \textit{(\textbf{J}ava \textbf{D}evelopment \textbf{K}it)} para el correcto funcionamiento de todos los proyectos.\\
 
-Una vez se tienen todos los proyectos correctamente importados, y las librerías debidamente incorportadas, se puede proceder con el resto de configuraciones necesarias antes de poder empezar con la implementación de nuestro agente.
+Una vez se tienen todos los proyectos correctamente importados, y las librerías debidamente incorporadas, se puede proceder con el resto de configuraciones necesarias antes de poder empezar con la implementación de nuestro agente.
 
 \section{Configuración de la base de datos}
 
@@ -529,6 +529,15 @@ En la figura \ref{img:ejecucion1}, se aprecia una ejecución en tiempo real de l
 \end{figure}
 
 \section{Diagrama de la aplicación}
+
+A continuación, en la figura \ref{img:diagramaaplicacion} se muestra un diagrama simplificado y reducido de la aplicación en cuestión. A la izquierda del mismo se muestran los distintos agentes resolutores de las prácticas comunicándose con el \textbf{WorldManager}, quien replica las comunicaciones a \textbf{LATEN} que a su vez se comunica con \textbf{PTelegram}. En la parte superior se muestran las distintas utilidades que ya estaban presentes con anterioridad, explicadas en secciones anteriores de este proyecto y de las que heredan o importan el resto de agentes.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.1\textwidth]{logos/diagramaaplicacion.png}\\[1.4cm]
+\caption{Diagrama simplificado de la aplicación}
+\label{img:diagramaaplicacion}
+\end{figure}
 
 \section{Ejemplo de comunicación entre agentes}
 

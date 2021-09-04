@@ -3,7 +3,7 @@
 
 Durante las últimas décadas se ha popularizado mucho el uso de agentes independientes \textit{(aunque este término es ciertamente redundante)} para uso diario, en nuesta vida cotidiana. Hoy en día tenemos varios ejemplos muy claros de este término, y en su mayoría, relacionados estrechamente con la inteligencia artificial.\\
 
-El robot aspirador que tenemos en nuestra casa programado, para que a cierta hora del día recorra las habitaciones que nosotros le indiquemos, es ciertamente un agente que usa la información de su entorno para realizar sus tareas.\\
+El robot aspirador que tenemos en nuestra casa, programado para que a cierta hora del día recorra las habitaciones que nosotros le indiquemos, es ciertamente un agente que usa la información de su entorno para realizar sus tareas.\\
 
 También lo son los prototipos de vehículos autónomos, generalmente coches, que junto con una gran cantidad de sensores también se aprovechan de la información que les brinda el entorno para desplazarse de un punto a otro sin tener ningún accidente.\\
 
@@ -11,19 +11,19 @@ Estos dos ejemplos anteriores se refieren a sistemas de un solo agente, aunque e
 
 \section{Definición de agente}
 
-Como es habitual en la mayoría de definiciones de la informática, a lo largo de los años se han propuesto diversas definiciones para el término de agente. Michael Wooldridge en su libro \textit{An Introduction to MultiAgent Systems} \cite{wooldridge-2009} introduce el término \textit{agente} como \textit{''un sistema capaz de realizar acciones de manera autónoma en algún entorno, para lograr las tareas que le han sido delegadas''}.\\
+Como es habitual en la mayoría de definiciones en el campo de la informática, a lo largo de los años se han propuesto diversas definiciones para el término de agente. Michael Wooldridge en su libro \textit{An Introduction to MultiAgent Systems} \cite{wooldridge-2009} introduce el término \textit{agente} como \textit{''un sistema capaz de realizar acciones de manera autónoma en algún entorno, para lograr las tareas que le han sido delegadas''}.\\
 
 El profesor Yoav Shoham de la Universidad de Stanford, publicó en 1991 el artículo \textit{Agent-oriented programming} \cite{Shoham}, en el cual hace una reflexión a cerca del uso que se le está dando al término. Esencialmente, lo que quiere transmitir es que el término se ha hecho tan popular en las últimas décadas, que ha dejado de tener sentido sin hacer alguna referencia particular a alguna noción de agente. Como por ejemplo, el ser autónomo, algo que el profesor indica que no es preciso, pero que se usa para indicar que las actividades que realizan los agentes no requieren intervención humana constante.\\
 
-A pesar de que hay muchas más definiciones, a partir de ahora en este documento se entenderá como agente a \textit{''un sistema computacional situado en un entorno y capaz de actuar de forma independiente o autónoma para conseguir sus propios objetivos, sin que una persona tenga que decirle cómo lograrlos, en representación de otra instancia (ya sea otro agente, una persona o él mismo)''}. Esta definición es la ha sido impartida en la asignatura previamente mencionada y la que por tanto hemos adoptado durante el desarrollo de la misma.
+A pesar de que hay muchas más definiciones, a partir de ahora en este documento se entenderá como agente a \textit{''un sistema computacional situado en un entorno y capaz de actuar de forma independiente o autónoma para conseguir sus propios objetivos, sin que una persona tenga que decirle cómo lograrlos, en representación de otra instancia (ya sea otro agente, una persona o él mismo)''}. Esta definición es la que ha sido impartida en la asignatura previamente mencionada y la que por tanto hemos adoptado durante el desarrollo de la misma.
 
 \section{Sistemas Multiagente}
 
 Debido a nuestra propia naturaleza, los seres humanos nos atenemos a vivir en sociedad para la realización de objetivos propios u objetivos comunes, que nos ayuden a progresar individual o colectivamente dentro de nuestros intereses. De igual forma, si establecemos un sistema en el que conviven varios agentes, podemos delegar diferentes tareas en cada uno de ellos para que entre todos puedan resolver un problema.\\
 
-Volviendo al ejemplo de la flota de drones autónomos mencionado anteriormente, podríamos imaginarnos que esta flota de drones tiene como objetivo localizar varios paquetes en un bosque de grandes dimensiones. En principio, no nos importa cuántos drones tengamos, únicamente queremos que enter todos localicen en un área determinada unos objetivos.\\
+Volviendo al ejemplo de la flota de drones autónomos mencionado anteriormente, podríamos imaginarnos que esta flota de drones tiene como objetivo localizar varios paquetes en un bosque de grandes dimensiones. En principio, no nos importa cuántos drones tengamos, únicamente queremos que entre todos localicen en un área determinada unos objetivos concretos.\\
 
-Vamos a pensar qué pasaría si en un momento determinado encuentra un paquete en cierto punto del bosque. Es necesario que se comunique de inmediato con el resto de agentes (drones) de la red por varios motivos, pero quizás uno de los más importantes sea que ese paquete sea el último que tienen que encontrar entre todos. Si no se llegase a comunicar, la red seguiría funcionando hasta que los drones se quedasen sin batería, casuística evidentemente que no queremos que se de. De esta forma se logra la \textbf{comunicación} entre agentes de un mismo sistema.\\
+Vamos a pensar qué pasaría si en un momento determinado encuentra un paquete en cierto punto del bosque. Es necesario que se comunique de inmediato con el resto de agentes (drones) de la red por varios motivos, pero quizás uno de los más importantes sea que ese paquete sea el último que tienen que encontrar entre todos. Si no se llegase a comunicar, la red seguiría funcionando hasta que los drones se quedasen sin batería, casuística que evidentemente no queremos que se de. De esta forma se logra la \textbf{comunicación} entre agentes de un mismo sistema.\\
 
 Para llegar a completar los objetivos, deberán adicionalmente \textbf{cooperar} entre ellos, \textbf{coordinar} sus acciones y \textbf{negociar} el conjunto de acciones a realizar. Con estos cuatro términos, podemos asegurar que tenemos un sistema multiagente.
 
@@ -83,7 +83,7 @@ Con respecto a JADE, es importante entender varios conceptos y más concretament
 
 \subsection{La clase \textit{Agent}}
 
-Para crear un agente de JADE, basta con extender la clase \textit{jade.core.Agent} e implementando el método \textit{setup()}, el cuál solo se debería usar para las inicializaciones que se deban de llevar a cabo en el momento de creación del agente:
+Para crear un agente de JADE, basta con extender la clase \textit{jade.core.Agent} e implementar el método \textit{setup()}, el cuál solo se debería usar para las inicializaciones que se deban de llevar a cabo en el momento de creación del agente:
 \begin{lstlisting}
 import jade.core.Agent;
 
@@ -114,13 +114,13 @@ Cada clase que extienda de \textit{Behaviour} deberá implementar los dos siguie
 
 Los comportamientos se pueden añadir al agente en cualquier momento; ya sea cuando se crea el agente (mediante el método \textit{setup()}) o desde otros comportamientos. Se pueden añadir comportamientos a un agente usando el método \textit{addBehaviour()} de la clase \textit{Agent}.\\
 
-Un agente puede ejecutar varios \textit{behaviours} de manera concurrente, usando un solo hilo de Java por agente, lo cual es especialmente importante en entornos con recursos limitados. Es importante destacar que cuando un \textit{behaviour} es programado para ejecutarse, su método \textit{action()} será llamado y se ejecutará hasta que termine. Esto deja al programador la labor de definir cómo un agente cambia de un \textit{behaviour} a otro durante su ejecución, y es especialmente ventajoso ya que mejora notablemente el rendimiento, ya que el cambio entre \textit{behaviours} es mucho extremadamente más rápido que el cambio entre hilos de Java.
+Un agente puede ejecutar varios \textit{behaviours} de manera concurrente, usando un solo hilo de Java por agente, lo cual es especialmente importante en entornos con recursos limitados. Es importante destacar que cuando un \textit{behaviour} es programado para ejecutarse, su método \textit{action()} será llamado y se ejecutará hasta que termine. Esto deja al programador la labor de definir cómo un agente cambia de un \textit{behaviour} a otro durante su ejecución, y es especialmente ventajoso ya que mejora notablemente el rendimiento, ya que el cambio entre \textit{behaviours} es extremadamente más rápido que el cambio entre hilos de Java.
 
 \subsection{La clase \textit{ACLMessage}}
 
 Como se ha explicado en secciones anteriores, existe un estándar de comunicación entre agentes elaborado por la FIPA para así habilitar la interoperabilidad y mejorar la comunicación entre agentes. JADE también incluye una clase, \textit{jade.lang.acl.ACLMessage}, que implementa un mensaje JADE siguiendo el estándar elaborado por la FIPA.\\
 
-Para no ser repetitivos, a continuación se muestra un fragmento de código que ilustra cómo un agente comunica al agente cuyo nombre es \textit{Lucian} un cierto mensaje, en un lenguaje y una ontología determinados en el propio mensaje ACL:
+Para no ser repetitivos, a continuación se muestra un fragmento de código que ilustra cómo un agente comunica al agente cuyo nombre es \textit{Lucian}, un cierto mensaje, en un lenguaje y una ontología determinados en el propio mensaje ACL:
 
 \begin{lstlisting}
 ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
